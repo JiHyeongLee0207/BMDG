@@ -1,0 +1,16 @@
+{
+    "name": "real-estate-app",
+    "version": "1.0.0",
+    "main": "app.js",
+    "scripts": {
+        "start": "node app.js"
+    },
+    "dependencies": {
+        "express": "^4.19.2",
+        "mongodb": "^3.6.0",
+        "mongoose": "^5.10.0"
+    },
+    "description": "CBNU SW학과 빅데이터 시스템 : 프로젝트 서울시 부동산 실거래가 분석",
+    "author": "",
+    "license": "ISC"
+}
