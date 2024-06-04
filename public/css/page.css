@@ -136,6 +136,50 @@ a:hover, a:focus, a:active {
     z-index: 0;
 }
 
+.search-inner > form{
+    text-align: center;
+}
+
+/* 기본 select 스타일 제거 및 꾸미기 */
+select {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background-color: #ffffff;
+    border: 1px solid #cccccc;
+    padding: 10px;
+    font-size: 16px;
+    border-radius: 5px;
+    cursor: pointer;
+    width: 150px;
+    text-align: center;
+}
+
+.hidden{
+    display: none;
+}
+
+/* 화살표 추가를 위한 스타일 */
+select::-ms-expand {
+    display: none;
+}
+
+/* 드롭다운 컨테이너 스타일 */
+.dropdown-container {
+    position: relative;
+    display: inline-block;
+}
+
+/* 드롭다운 화살표 추가 */
+.dropdown-container::after {
+    content: '\25BC'; /* ▼ 화살표 문자 */
+    position: absolute;
+    top: 50%;
+    right: 10px;
+    transform: translateY(-50%);
+    pointer-events: none;
+}
+
 .content{
     display: grid;
     grid-template-columns: 1fr 8fr 1fr;
