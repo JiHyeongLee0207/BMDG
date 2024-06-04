@@ -1,5 +1,5 @@
 module.exports = {
-    make_page:function(){
+    make_page:function(css,search,contents){
         return `
         <!DOCTYPE html>
         <html lang="en">
@@ -8,6 +8,7 @@ module.exports = {
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
             <title>Homepage</title>
             <link rel="stylesheet" href="../css/page.css">
+            ${css}
         </head>
         <body>
             <div class="container">
@@ -61,30 +62,14 @@ module.exports = {
                 <div class="search">
                     <div></div>
                     <div class="search-inner">
-                        SEARCH
+                        ${search}
                     </div>
                     <div></div>
                 </div>
                 <div class="content">
                     <div></div>
                     <div class="content-inner">
-                        <div class="site">
-                            <h1>What is this site</h1>
-                            <p>This site is BMDG</p>
-                        </div>
-                        <div class="team">
-                            <h1>Team members</h1>
-                            <div class="team-inner">
-                                <div>
-                                    <img src="../images/chan.jpg" alt="">
-                                    <h3>Chan Lee</h3>
-                                </div>
-                                <div>
-                                    <img src="../images/jihyeong.jpg" alt="">
-                                    <h3>Jihyeong Lee</h3>
-                                </div>
-                            </div>
-                        </div>
+                        ${contents}
                     </div>
                     <div></div>
                 </div>
