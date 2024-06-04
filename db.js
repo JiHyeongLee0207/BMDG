@@ -23,6 +23,6 @@ async function connectBMDG(db) {
 module.exports = {
   MongoClient,
   connectDB,
-  closeConnection,
+  connectBMDG,
   closeConnection
 };
