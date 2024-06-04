@@ -35,7 +35,7 @@ router.get('/1', async (req, res, next) => {
     </form>
     `;
 
-    const data = await collection.collection.aggregate([
+    const data = await collection.aggregate([
         { $match: { 연도: selectedYear } }, // 사용자가 입력한 연도와 일치하는 문서 찾기
         { $sort: { 물건금액: -1 } }, // 물건금액 기준으로 내림차순 정렬
         { $limit: 1 }, // 가장 위에 있는 문서만 선택
