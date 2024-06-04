@@ -9,28 +9,12 @@ router.get('/', (req, res, next) => {
         <link rel="stylesheet" href="../css/main.css">
     `;
     const search = `
-        
+        <p style="text-align:center">This is BMDG</p>
     `;
     const contents = `
-        <div class="site">
-            <h1>What is this site</h1>
-            <p>This site is BMDG</p>
-        </div>
-        <div class="team">
-            <h1>Team members</h1>
-            <div class="team-inner">
-                <div>
-                    <img src="../images/chan.jpg" alt="">
-                    <h3>Chan Lee</h3>
-                </div>
-                <div>
-                    <img src="../images/jihyeong.jpg" alt="">
-                    <h3>Jihyeong Lee</h3>
-                </div>
-            </div>
-        </div>
+        
     `
-    res.send(template.make_page(css,"hi",contents));
+    res.send(template.make_page(css,search,contents));
 });
 
 module.exports = router;

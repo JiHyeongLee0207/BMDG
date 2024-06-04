@@ -1,5 +1,11 @@
 const express = require('express');
+const bodyParser = require('body-parser');
 const app = express();
+
+// JSON 형식의 요청 본문을 파싱
+app.use(express.json());
+// URL-encoded 형식의 요청 본문을 파싱
+app.use(express.urlencoded({ extended: true }));
 
 // 미들웨어 추가
 app.use(express.static('public')); // 정적 파일 제공

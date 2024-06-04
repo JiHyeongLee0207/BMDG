@@ -1,5 +1,5 @@
 module.exports = {
-    make_page:function(css,search,contents){
+    make_page:function(css,search,contents,func){
         return `
         <!DOCTYPE html>
         <html lang="en">
@@ -74,6 +74,12 @@ module.exports = {
                     <div></div>
                 </div>
             </div>
+            <script>
+            document.querySelector('.BMDG').addEventListener('click', function() {
+                window.location.href = '/';
+            });
+            ${func}
+            </script>
         </body>
         </html>
         `;
