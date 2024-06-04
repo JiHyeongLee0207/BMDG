@@ -2,61 +2,173 @@
 body, html {
     margin: 0;
     padding: 0;
-    height: 100%;
     display: flex;
     justify-content: center;
     align-items: center;
     font-family: Arial, sans-serif;
+    background-color: whitesmoke;
+}
+
+button {
+    background: none; /* 배경색 제거 */
+    border: none; /* 테두리 제거 */
+    padding: 0; /* 패딩 제거 */
+    margin: 0; /* 마진 제거 */
+    font: inherit; /* 부모 요소의 폰트 상속 */
+    color: inherit; /* 부모 요소의 글자색 상속 */
+    cursor: pointer; /* 커서 스타일을 포인터로 설정 */
+    outline: none; /* 포커스 시 아웃라인 제거 */
+}
+
+a {
+    text-decoration: none; /* 밑줄 제거 */
+    color: inherit; /* 부모 요소의 색상 상속 */
+    cursor: pointer; /* 마우스 커서를 포인터로 변경 */
+}
+
+a:visited {
+    color: inherit; /* 방문한 링크 색상도 상속 */
+}
+
+a:hover, a:focus, a:active {
+    text-decoration: none; /* 호버, 포커스, 클릭 시에도 밑줄 제거 */
+    color: inherit; /* 호버, 포커스, 클릭 시에도 색상 상속 */
+    outline: none; /* 포커스 시 아웃라인 제거 */
 }
 
 .container {
     display: grid;
-    grid-template-columns: 1fr 3fr 1fr;
-    grid-template-rows: 1fr;
-    height: 100vh;
+    grid-template-rows: 10vh auto 10vh;
     width: 100vw;
+    overflow-y: scroll;
 }
 
-.left-grid, .right-grid {
-    background-color: #365F9D;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    color: white;
-    font-size: 1.5em;
+.container > div{
+    padding-top: 20px;
+    padding-bottom: 20px;
 }
 
-.inner {
+#line{
+    padding: 0;
+}
+
+.top{
     display: grid;
-    grid-template-rows: 1fr 9fr;
+    grid-template-columns: 1.5fr 7fr 1.5fr;
+    align-items: center; /*세로정렬*/
+    background-color: white;
+}
+
+.header{
+    display: grid;
+    grid-template-columns: 2fr 8fr;
+}
+
+.BMDG{
+    padding: 0px 10px;
+}
+
+.BMDG:hover{
+    background-color: rgba(0,0,0, 6%);
+    border-radius: 6px;
+}
+
+.menu,.menulist{
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
+}
+
+.menu {
+    position: relative;
+}
+
+.header-name{
+    text-align: center;
+    font-size: 24px;
+}
+
+.header-name,.menu-item{
+    padding: 15px 0px;
+    border-radius: 6px;
+}
+
+.menu-item {
+    position: relative;
+    display: inline-block;
+    text-align: center;
+}
+
+.submenu {
+    display: none;
+    position: absolute;
+    padding: 5px 10px;
     width: 100%;
-    height: 100%;
+    top: 100%;
+    left: 0;
+    background-color: white; /* 하위 메뉴의 배경색 */
+    border: 1px solid #ccc; /* 하위 메뉴 테두리 */
+    z-index: 1000; /* 하위 메뉴가 다른 요소 위에 표시되도록 */
+    border-radius: 6px;
+
 }
 
-.header-grid {
+.menu-item:hover{
+    background-color: rgba(0,0,0, 6%);
+}
+
+.menu-item:hover .submenu {
+    display: block;
+}
+
+.submenu div {
+    padding: 10px;
+    border-bottom: 1px solid #ccc;
+}
+
+.submenu div:last-child {
+    border-bottom: none; /* 마지막 하위 메뉴 항목의 테두리 제거 */
+}
+
+.search{
     display: grid;
-    grid-template-columns: 3fr 7fr;
+    grid-template-columns: 1.5fr 7fr 1.5fr;
+    background-color: white;
+    z-index: 0;
 }
 
-.header-grid > div{
-    display: flex;
+.content{
+    display: grid;
+    grid-template-columns: 1fr 8fr 1fr;
+}
+
+.content-inner > div{
+    background-color: white;
+    margin-bottom: 40px;
+    box-shadow: 0px 0px 12px 4px rgba(0,0,0, 10%);
+}
+
+.content-inner div{
+    padding: 10px 40px;
+}
+
+.team > *{
+    text-align: center;
     justify-content: center;
     align-items: center;
 }
 
-.header1{
-    background-color: gray;
-}
-
-.contents-grid {
-    background-color: blue;
+.team-inner{
     display: grid;
-    row-gap: 10px;
-    padding-left: 20px;
-    padding-right: 20px;
+    grid-template-columns: 1fr 1fr;
 }
 
-.contents-grid > div{
-    display: flex;
+.team-inner > div {
+    text-align: center;
+    max-width: 100%;
+}
 
+.team-inner > div > img{
+    max-width: 100%;
+    max-height: 400px;
+    height: auto;
 }

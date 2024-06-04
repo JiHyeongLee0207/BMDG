@@ -1,10 +1,11 @@
 const express = require('express');
 const router = express.Router();
 const fs = require('fs');
+var template = require('../public/html/template.js');
 
 router.get('/', (req, res, next) => {
     console.log('hi');
-    fs.readFile('./public/html/main.html', 'utf8', (err, data) => {
+    fs.readFile('./public/html/5_1.html', 'utf8', (err, data) => {
         if (err) {
             console.error(err);
             return next(err);
@@ -13,8 +14,9 @@ router.get('/', (req, res, next) => {
     });
 });
 
-router.get('/page',(req,res)=>{
-    fs.readFile('./public/html/page.html', 'utf8', (err, data) => {
+router.get('/', (req, res, next) => {
+    console.log('hi');
+    fs.readFile('./public/html/5_2.html', 'utf8', (err, data) => {
         if (err) {
             console.error(err);
             return next(err);
