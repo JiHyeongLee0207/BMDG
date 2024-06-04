@@ -11,7 +11,6 @@ const {
 } = require("../db.js");
 
 router.get('/1', async (req, res, next) => {
-    
     const MONGO_URI = process.env.MONGO_URI;
     const client = new MongoClient(MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true });
     const db = await connectDB(client);
@@ -39,6 +38,7 @@ router.get('/1', async (req, res, next) => {
         <input type="hidden" name="year" id="selectedYear">
     </form>
     `;
+
     let year = selectedYear;
     year = parseInt(year);
     const data = await collection.aggregate([
@@ -56,7 +56,6 @@ router.get('/1', async (req, res, next) => {
             "건물용도": 1
         }}
     ]).toArray(); // 결과를 배열로 변환
-
     console.log("받아온 쿼리 파라미터: ",data);
     
     // 결과를 HTML로 구성
@@ -74,6 +73,8 @@ router.get('/1', async (req, res, next) => {
     const func = `
     function selectYear(event, year) {
         event.preventDefault(); // 기본 링크 동작을 막음
+
+        showLoadingScreen();
         
         // 선택된 연도를 hidden input에 설정
         document.getElementById('selectedYear').value = year;
@@ -85,6 +86,9 @@ router.get('/1', async (req, res, next) => {
         const url = new URL(window.location);
         url.searchParams.set('year', year);
         window.history.pushState({}, '', url);
+
+        // 폼을 제출하여 페이지 갱신
+        document.getElementById('yearForm').submit();
     }
     `;
 

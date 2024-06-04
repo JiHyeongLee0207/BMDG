@@ -1,3 +1,8 @@
+@font-face {
+    font-family: 'BMYeonsung'; /* 폰트 이름을 정의합니다 */
+    src: url('../font.ttf') format('truetype'); /* 폰트 파일 경로를 지정합니다 */
+}
+
 /* ../css/main.css */
 body, html {
     margin: 0;
@@ -6,7 +11,8 @@ body, html {
     justify-content: center;
     align-items: center;
     font-family: Arial, sans-serif;
-    background-color: #f5f5f5;
+    background-color: #fafafa;
+    font-family: 'BMYeonsung', sans-serif;
 }
 
 button {
@@ -131,7 +137,7 @@ a:hover, a:focus, a:active {
 .search{
     display: grid;
     grid-template-columns: 1.5fr 7fr 1.5fr;
-    background-color: white;
+    background-color:rgb(3, 136, 226);
     z-index: 0;
 }
 
@@ -164,15 +170,12 @@ a:hover, a:focus, a:active {
     cursor: default;
 }
 
-.dropbtn:hover{
-    border: 2px solid black;
-}
-
 /* 드롭다운 메뉴 스타일 */
 .dropdown-content {
     display: none;
     position: absolute;
     background-color: white;
+    border-radius: 10px;
     min-width: 160px;
     max-height: 200px;
     overflow-y: auto;
