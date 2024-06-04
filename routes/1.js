@@ -11,13 +11,17 @@ const {
 } = require("../db.js");
 
 router.get('/1', async (req, res, next) => {
-    const selectedYear = req.query.year;
     
     const MONGO_URI = process.env.MONGO_URI;
     const client = new MongoClient(MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true });
     const db = await connectDB(client);
     const collection = await connectBMDG(db);
-    const query = await collection.findOne();
+    let selectedYear = req.query.year;
+    console.log("받아온 쿼리 파라미터: ",selectedYear);
+    if (!Number.isInteger(parseInt(selectedYear))) {
+        selectedYear = parseInt(selectedYear);
+        console.log("Converted selectedYear to Number:", selectedYear); // 변환된 selectedYear 값 로깅
+    }
 
     const css = `
     <link rel="stylesheet" href="../css/main.css">
@@ -35,13 +39,38 @@ router.get('/1', async (req, res, next) => {
         <input type="hidden" name="year" id="selectedYear">
     </form>
     `;
+    let year = selectedYear;
+    year = parseInt(year);
+    const data = await collection.aggregate([
+        { $match: { 연도: year } },
+        { $sort: { 물건금액: -1 } },
+        { $limit: 1 },
+        { $project: {
+            "_id":0,
+            "연도": 1,
+            "자치구명": 1,
+            "법정동명": 1,
+            "물건금액(만원)": 1,
+            "건물면적(㎡)": 1,
+            "층": 1,
+            "건물용도": 1
+        }}
+    ]).toArray(); // 결과를 배열로 변환
 
+    console.log("받아온 쿼리 파라미터: ",data);
     
-    const contents = selectedYear !== undefined ? `
+    // 결과를 HTML로 구성
+    const contents = data.length > 0 ? `
+    <h2>검색 결과</h2>
+    <p>연도: ${data[0].연도}</p>
+    <p>자치구명: ${data[0].자치구명}</p>
+    <p>법정동명: ${data[0].법정동명}</p>
+    <p>물건금액: ${data[0]["물건금액(만원)"]}</p>  // 필드명 변경
+    <p>건물면적: ${data[0]["건물면적(㎡)"]}</p>      // 필드명 변경
+    <p>층: ${data[0].층}</p>
+    <p>건물용도: ${data[0].건물용도}</p>
+    ` : '<p>결과가 없습니다.</p>';
 
-
-    
-    ` : '';
     const func = `
     function selectYear(event, year) {
         event.preventDefault(); // 기본 링크 동작을 막음
@@ -63,44 +92,18 @@ router.get('/1', async (req, res, next) => {
     res.send(template.make_page(css, search, contents, func));
 });
 
-router.get('/2', async (req, res, next) => {
-    const selectedYear = req.query.year;
-    
-    const MONGO_URI = process.env.MONGO_URI;
-    const client = new MongoClient(MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true });
-
-    // 가장 높은 input_no 값을 가져와서 다음 값을 설정
-    const db = await connectDB(client);
-    const collection = await connectBMDG(db);
-    const query = await collection.findOne();
-
+router.get('/2', (req, res, next) => {
+    console.log('hi');
     const css = `
-    <link rel="stylesheet" href="../css/main.css">
+        <link rel="stylesheet" href="../css/main.css">f
     `;
     const search = `
-    <form id="yearForm" method="get">
-        <select name="year" id="year">
-            <option value="" ${!selectedYear ? 'selected' : ''} disabled class="hidden">연도선택</option>
-            ${[2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023].map(year => 
-                `<option value="${year}" ${selectedYear == year ? 'selected' : ''}>${year}</option>`
-            ).join('')}
-        </select>   
-    </form>
+        <p style="text-align:center">This is BMDG</p>
     `;
-    const contents = selectedYear !== undefined ? `
+    const contents = `
         
-
-
-
-    ` : '';
-    const func = `
-    document.getElementById('year').addEventListener('change', function() {
-        document.getElementById('yearForm').submit();
-    });
-    `;
-
-    closeConnection(client);
-    res.send(template.make_page(css, search, contents, func));
+    `
+    res.send(template.make_page(css,search,contents));
 });
 
 module.exports = router;

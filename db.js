@@ -5,7 +5,7 @@ async function connectDB(client) {
   let db;
   if (!db) {
     await client.connect();
-    db = client.db('puts');
+    db = client.db('BMDG');
     console.log("MongoDB 연결 성공");
   }
   return db;
@@ -17,7 +17,7 @@ async function closeConnection(client) {
 }
 
 async function connectBMDG(db) {
-  return db.collection('BMDG');
+  return db.collection('budongsan');
 }
 
 module.exports = {
