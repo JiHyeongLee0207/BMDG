@@ -20,35 +20,35 @@ module.exports = {
                         </div>
                         <div class="header-navbar">
                             <div class="menu">
-                                <div class="menu-item">1
+                                <div class="menu-item">건물 정보
                                     <div class="submenu">
-                                        <div><a href="/1/1">1-1</a></div>
-                                        <div><a href="/1/2">1-2</a></div>
+                                        <div><a href="/1/1">가장 비싼/싼 건물</a></div>
+                                        <div><a href="/1/2">면적대비 비싼/싼 건물</a></div>
                                     </div>
                                 </div>
-                                <div class="menu-item">2
+                                <div class="menu-item">용도별 정보
                                     <div class="submenu">
-                                        <div><a href="/2/1">2-1</a></div>
-                                        <div><a href="/2/2">2-2</a></div>
+                                        <div><a href="/2/1">연별 평균가격</a></div>
+                                        <div><a href="/2/2">연별 거래량 수</a></div>
                                     </div>
                                 </div>
-                                <div class="menu-item">3
+                                <div class="menu-item">월별 정보
                                     <div class="submenu">
-                                        <div><a href="/3/1">3-1</a></div>
+                                        <div><a href="/3/1">월별 계약량</a></div>
                                     </div>
                                 </div>
-                                <div class="menu-item">4
+                                <div class="menu-item">자치구,동별 정보
                                     <div class="submenu">
-                                        <div><a href="/4/1">4-1</a></div>
-                                        <div><a href="/4/2">4-2</a></div>
-                                        <div><a href="/4/3">4-3</a></div>
-                                        <div><a href="/4/4">4-4</a></div>
+                                        <div><a href="/4/1">최다 거래량 자치구</a></div>
+                                        <div><a href="/4/2">최대 평균가격 자치구</a></div>
+                                        <div><a href="/4/3">최다 거래량 동</a></div>
+                                        <div><a href="/4/4">최대 평균가격 동</a></div>
                                     </div>
                                 </div>
-                                <div class="menu-item">5
+                                <div class="menu-item">집사는 시기 알아보기
                                     <div class="submenu">
-                                        <div><a href="/5/1">5-1</a></div>
-                                        <div><a href="/5/2">5-2</a></div>
+                                        <div><a href="/5/1">이돈으로 몇년?</a></div>
+                                        <div><a href="/5/2">이돈으로 뭘?</a></div>
                                     </div>
                                 </div>
                             </div>
