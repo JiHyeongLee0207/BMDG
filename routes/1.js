@@ -43,11 +43,12 @@ router.get('/1', async (req, res, next) => {
     year = parseInt(year);
     const data = await collection.aggregate([
         { $match: { 연도: year } },
-        { $sort: { 물건금액: -1 } },
+        { $sort: { "물건금액(만원)": -1 } },
         { $limit: 1 },
         { $project: {
             "_id":0,
             "연도": 1,
+            "건물명":1,
             "자치구명": 1,
             "법정동명": 1,
             "물건금액(만원)": 1,
@@ -62,11 +63,12 @@ router.get('/1', async (req, res, next) => {
     const contents = data.length > 0 ? `
     <h2>검색 결과</h2>
     <p>연도: ${data[0].연도}</p>
+    <p>건물명: ${data[0].건물명}</p>
     <p>자치구명: ${data[0].자치구명}</p>
     <p>법정동명: ${data[0].법정동명}</p>
-    <p>물건금액: ${data[0]["물건금액(만원)"]}</p>  // 필드명 변경
-    <p>건물면적: ${data[0]["건물면적(㎡)"]}</p>      // 필드명 변경
-    <p>층: ${data[0].층}</p>
+    <p>물건금액: ${data[0]["물건금액(만원)"]}만원</p>  
+    <p>건물면적: ${data[0]["건물면적(㎡)"]}㎡</p>     
+    <p>층: ${data[0].층}층</p>
     <p>건물용도: ${data[0].건물용도}</p>
     ` : '<p>결과가 없습니다.</p>';
 
