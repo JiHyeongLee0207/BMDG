@@ -60,7 +60,7 @@ router.get('/1', async (req, res, next) => {
     console.log("받아온 쿼리 파라미터: ",data);
     
     // 결과를 HTML로 구성
-    const contents = data.length > 0 ? `
+    const contents = data.length > 0 ? `<div>
     <h2>검색 결과</h2>
     <p>연도: ${data[0].연도}</p>
     <p>건물명: ${data[0].건물명}</p>
@@ -69,8 +69,9 @@ router.get('/1', async (req, res, next) => {
     <p>물건금액: ${data[0]["물건금액(만원)"]}만원</p>  
     <p>건물면적: ${data[0]["건물면적(㎡)"]}㎡</p>     
     <p>층: ${data[0].층}층</p>
-    <p>건물용도: ${data[0].건물용도}</p>
-    ` : '<p>결과가 없습니다.</p>';
+    <p>건물용도: ${data[0].건물용도}</p></div>
+    ` : '<div><p>결과가 없습니다.</p></div>';
+    
 
     const func = `
     function selectYear(event, year) {
