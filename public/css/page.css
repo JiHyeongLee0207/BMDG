@@ -135,8 +135,6 @@ a:hover, a:focus, a:active {
 }
 
 .search{
-    display: grid;
-    grid-template-columns: 1.5fr 7fr 1.5fr;
     background-color:rgb(3, 136, 226);
     z-index: 0;
 }
