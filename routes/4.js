@@ -20,16 +20,5 @@ router.get('/2', (req, res, next) => {
     res.send(template);
 
 });
-router.get('/3', (req, res, next) => {
-    console.log('hi');
-    res.send(template);
-
-});
-router.get('/4', (req, res, next) => {
-    console.log('hi');
-    res.send(template);
-
-});
-
 
 module.exports = router;
