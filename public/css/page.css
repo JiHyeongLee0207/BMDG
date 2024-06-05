@@ -48,11 +48,6 @@ a:hover, a:focus, a:active {
     width: 100vw;
 }
 
-.container > div{
-    padding-top: 20px;
-    padding-bottom: 20px;
-}
-
 #line{
     padding: 0;
 }
@@ -137,6 +132,7 @@ a:hover, a:focus, a:active {
 .search{
     background-color:rgb(3, 136, 226);
     z-index: 0;
+    align-content: center;
 }
 
 .search-inner > form{

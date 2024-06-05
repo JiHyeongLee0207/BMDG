@@ -1,5 +1,5 @@
 module.exports = {
-    make_page:function(css,search,contents,func){
+    make_page:function(css,search,contents,js){
         return `
         <!DOCTYPE html>
         <html lang="en">
@@ -96,9 +96,8 @@ module.exports = {
             window.addEventListener('pageshow', function(event) {
                 hideLoadingScreen();
             });
-            
-            ${func}
             </script>
+            ${js}
         </body>
         </html>
         `;

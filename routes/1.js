@@ -270,7 +270,7 @@ console.log(contents);
     `;
 
     closeConnection(client);
-    res.send(template.make_page(css, search, contents, func));
+    res.send(template.make_page(css, search, contents, js));
 });
 
 module.exports = router;
