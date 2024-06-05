@@ -10,6 +10,8 @@ const {
   closeConnection,
 } = require("../db.js");
 
+
+//용도별 연별 평균가격--------------------------------------------------------------
 router.get('/1', async (req, res, next) => {
   const MONGO_URI = process.env.MONGO_URI;
   const client = new MongoClient(MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true });
@@ -70,9 +72,42 @@ router.get('/1', async (req, res, next) => {
   </form>
   `;
   
-  const contents = `
-  
-  `;
+  //5.용도별 연간 평균 가격
+  const data1 = await collection.aggregate([
+    { $match: {
+        연도: { $gte: fromYear, $lte: toYear },
+        건물용도: purpose
+    }},
+    { $group: {
+        _id: "$연도",
+        평균거래가격: { $avg: "$물건금액(만원)" }
+    }},
+    { $sort: { _id: 1 } }
+  ]).toArray(); // 결과를 배열로 변환
+      
+
+  console.log("받아온 쿼리 파라미터: ",data1);
+
+  // 결과가 있는지 확인 후 출력
+  const contents = (data1.length > 0) ? `<div>
+  <h2>${purposeBoxName} 용도의 연간 평균 거래 가격</h2>
+  <table>
+      <thead>
+          <tr>
+              <th>연도</th>
+              <th>평균 거래 가격</th>
+          </tr>
+      </thead>
+      <tbody>
+          ${data1.map(yearData => `
+              <tr>
+                  <td>${yearData._id}</td>
+                  <td>${formatKoreanCurrency(yearData.평균거래가격.toFixed(0))}</td>
+              </tr>
+          `).join('')}
+      </tbody>
+  </table>
+  </div>` : '<div><p>결과가 없습니다.</p></div>';
 
   const func = `
   function purpose(event, data) {
@@ -104,6 +139,7 @@ router.get('/1', async (req, res, next) => {
     url.searchParams.set('data', data);
     window.history.pushState({}, '', url);
   }
+  
 
   function toYear(event, data) {
     event.preventDefault(); // 기본 링크 동작을 막음
@@ -133,6 +169,8 @@ router.get('/1', async (req, res, next) => {
   res.send(template.make_page(css, search, contents, func));
 });
 
+
+//용도별 연별 거래량 수 --------------------------------------------------------------
 router.get('/2', async (req, res, next) => {
   const MONGO_URI = process.env.MONGO_URI;
   const client = new MongoClient(MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true });
@@ -193,9 +231,42 @@ router.get('/2', async (req, res, next) => {
   </form>
   `;
   
-  const contents = `
-  
-  `;
+  //6.용도별 연간 평균 거래량 
+  const data1 = await collection.aggregate([
+    { $match: {
+        연도: { $gte: fromYear, $lte: toYear },
+        건물용도: purpose
+    }},
+    { $group: {
+        _id: "$연도",
+        거래량: { $sum: 1 }
+    }},
+    { $sort: { _id: 1 } }
+  ]).toArray(); // 결과를 배열로 변환
+      
+
+  console.log("받아온 쿼리 파라미터: ",data1);
+
+  // 결과가 있는지 확인 후 출력
+  const contents = (data1.length > 0) ? `<div>
+  <h2>${purposeBoxName} 용도의 연간 거래량</h2>
+  <table>
+      <thead>
+          <tr>
+              <th>연도</th>
+              <th>거래량</th>
+          </tr>
+      </thead>
+      <tbody>
+          ${data1.map(yearData => `
+              <tr>
+                  <td>${yearData._id}</td>
+                  <td>${yearData.거래량}</td>
+              </tr>
+          `).join('')}
+      </tbody>
+  </table>
+  </div>` : '<div><p>결과가 없습니다.</p></div>';
 
   const func = `
   function purpose(event, data) {
@@ -227,6 +298,7 @@ router.get('/2', async (req, res, next) => {
     url.searchParams.set('data', data);
     window.history.pushState({}, '', url);
   }
+  
 
   function toYear(event, data) {
     event.preventDefault(); // 기본 링크 동작을 막음
@@ -256,4 +328,20 @@ router.get('/2', async (req, res, next) => {
   res.send(template.make_page(css, search, contents, func));
 });
 
+
 module.exports = router;
+
+function formatKoreanCurrency(value) {
+  let result = '';
+  if (value >= 10000) {
+      const eok = Math.floor(value / 10000);
+      const man = value % 10000;
+      result = `${eok}억`;
+      if (man > 0) {
+          result += ` ${man}만원`;
+      }
+  } else {
+      result = `${value}만원`;
+  }
+  return result;
+}
