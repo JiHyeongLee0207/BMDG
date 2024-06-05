@@ -27,7 +27,7 @@ function handleFromYearSelect(event, year) {
     }
 
     const url = new URL(window.location);
-    url.searchParams.set('fromYear', data);
+    url.searchParams.set('fromYear', year);
     window.history.pushState({}, '', url);
 }
 

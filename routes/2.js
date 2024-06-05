@@ -69,11 +69,17 @@ router.get('/1', async (req, res, next) => {
     <input type="hidden" name="toYear" id="toYear">
   </form>
   `;  
+
+
+  let year1 = fromYear;
+  year1 = parseInt(year1);
+  let year2 = toYear;
+  year2 = parseInt(year2);
   
   //5.용도별 연간 평균 가격
   const data1 = await collection.aggregate([
     { $match: {
-        연도: { $gte: fromYear, $lte: toYear },
+        연도: { $gte: year1, $lte: year2 },
         건물용도: purpose
     }},
     { $group: {
@@ -84,7 +90,7 @@ router.get('/1', async (req, res, next) => {
   ]).toArray(); // 결과를 배열로 변환
       
 
-  console.log("받아온 쿼리 파라미터: ",data1);
+  console.log("받아온 쿼리 파라미터data: ",data1);
 
   // 결과가 있는지 확인 후 출력
   const contents = (data1.length > 0) ? `<div>
@@ -139,47 +145,50 @@ router.get('/2', async (req, res, next) => {
     toYearBoxName = "연도선택";
 
   const css = `
-  <link rel="stylesheet" href="../css/2_1.css">
+  <link rel="stylesheet" href="../css/submitbtn.css">
   `;
   const search = `
   <form id="yearForm" method="get">
-      <div class="dropdown">
-          <button type="button" class="dropbtn" id="purposeDropdownButton">${purposeBoxName}</button>
-          <div class="dropdown-content">
-              ${["아파트", "오피스텔", "연립다세대", "단독다가구"].map(purpose => 
-                  `<a href="#" onclick="purpose(event, '${purpose}')">${purpose}</a>` // 여기를 수정
-              ).join('')}
-          </div>
-      </div>
-      <div class="dropdown">
-          <button type="button" class="dropbtn"  id="fromYearDropdownButton">${fromYearBoxName}</button>
-          <div class="dropdown-content">
-              ${[2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023].map(year => 
-                  `<a href="#" onclick="fromYear(event, ${year})">${year}</a>`
-              ).join('')}
-          </div>
-      </div>
-      <div class="dropdown">
-          <button type="button" class="dropbtn"  id="toYearDropdownButton">${toYearBoxName}</button>
-          <div class="dropdown-content">
-              ${[2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023].map(year => 
-                  `<a href="#" onclick="toYear(event, ${year})">${year}</a>`
-              ).join('')}
-          </div>
-      </div>
-      <div class="submit" style="display:inline-block">
-          <button type="button" class="submitbtn" id="submit">조회</button>
-      </div>
-      <input type="hidden" name="purpose" id="purpose">
-      <input type="hidden" name="fromYear" id="fromYear">
-      <input type="hidden" name="toYear" id="toYear">
+    <div class="dropdown">
+        <button type="button" class="dropbtn" id="purposeDropdownButton">${purposeBoxName}</button>
+        <div class="dropdown-content">
+            ${["아파트", "오피스텔", "연립다세대", "단독다가구"].map(data => 
+                `<a href="#" onclick="handlePurposeSelect(event, '${data}')">${data}</a>`
+            ).join('')}
+        </div>
+    </div>
+    <div class="dropdown">
+        <button type="button" class="dropbtn" id="fromYearDropdownButton">${fromYearBoxName}</button>
+        <div class="dropdown-content">
+            ${[2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023].map(data => 
+                `<a href="#" onclick="handleFromYearSelect(event, ${data})">${data}</a>`
+            ).join('')}
+        </div>
+    </div>
+    <div class="dropdown" style="display:none;" id="toYearDropdown">
+        <button type="button" class="dropbtn" id="toYearDropdownButton">${toYearBoxName}</button>
+        <div class="dropdown-content" id="toYearDropdownContent">
+            <!-- 종료 연도 옵션은 JavaScript를 통해 동적으로 생성됩니다 -->
+        </div>
+    </div>
+    <div class="formsubmit" style="display:none;" id="formSubmit" onclick="handleSubmit(event,'${purposeBoxName}','${fromYearBoxName}','${toYearBoxName}');" style="display:inline-block">
+        <button type="button" class="submitbtn" id="nonformSubmit">조회</button>
+    </div>
+    <input type="hidden" name="purpose" id="purpose">
+    <input type="hidden" name="fromYear" id="fromYear">
+    <input type="hidden" name="toYear" id="toYear">
   </form>
-  `;
+  `;  
+  
+  let year1 = fromYear;
+  year1 = parseInt(year1);
+  let year2 = toYear;
+  year2 = parseInt(year2);
   
   //6.용도별 연간 평균 거래량 
   const data1 = await collection.aggregate([
     { $match: {
-        연도: { $gte: fromYear, $lte: toYear },
+        연도: { $gte: year1, $lte: year2 },
         건물용도: purpose
     }},
     { $group: {
@@ -213,60 +222,8 @@ router.get('/2', async (req, res, next) => {
   </table>
   </div>` : '<div><p>결과가 없습니다.</p></div>';
 
-  const func = `
-  function purpose(event, data) {
-      event.preventDefault(); // 기본 링크 동작을 막음
-
-      // 선택된 연도를 hidden input에 설정
-      document.getElementById('purpose').value = data;
-      
-      // 버튼 텍스트를 선택된 연도로 변경
-      document.getElementById('purposeDropdownButton').innerText = data;
-
-      // URL 쿼리 문자열을 변경
-      const url = new URL(window.location);
-      url.searchParams.set('data', data);
-      window.history.pushState({}, '', url);
-  }
-
-  function fromYear(event, data) {
-    event.preventDefault(); // 기본 링크 동작을 막음
-
-    // 선택된 연도를 hidden input에 설정
-    document.getElementById('fromYear').value = data;
-    
-    // 버튼 텍스트를 선택된 연도로 변경
-    document.getElementById('fromYearDropdownButton').innerText = data;
-
-    // URL 쿼리 문자열을 변경
-    const url = new URL(window.location);
-    url.searchParams.set('data', data);
-    window.history.pushState({}, '', url);
-  }
-  
-
-  function toYear(event, data) {
-    event.preventDefault(); // 기본 링크 동작을 막음
-
-    // 선택된 연도를 hidden input에 설정
-    document.getElementById('toYear').value = data;
-    
-    // 버튼 텍스트를 선택된 연도로 변경
-    document.getElementById('toYearDropdownButton').innerText = data;
-
-    // URL 쿼리 문자열을 변경
-    const url = new URL(window.location);
-    url.searchParams.set('data', data);
-    window.history.pushState({}, '', url);
-  }
-
-  function submit(event){
-    event.preventDefault();
-
-    showLoadingScreen();
-
-    document.getElementById('yearForm').submit();
-  }
+  const js = `
+  <script src="../js/2.js"></script>
   `;
 
   closeConnection(client);
