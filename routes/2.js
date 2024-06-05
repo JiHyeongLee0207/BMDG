@@ -104,6 +104,7 @@ router.get('/1', async (req, res, next) => {
     url.searchParams.set('data', data);
     window.history.pushState({}, '', url);
   }
+  
 
   function toYear(event, data) {
     event.preventDefault(); // 기본 링크 동작을 막음
