@@ -18,18 +18,17 @@ router.get('/1', async (req, res, next) => {
     const collection = await connectBMDG(db);
     let selectedYear = req.query.year;
     console.log("받아온 쿼리 파라미터: ",selectedYear);
-    if (!Number.isInteger(parseInt(selectedYear))) {
-        selectedYear = parseInt(selectedYear);
-        console.log("Converted selectedYear to Number:", selectedYear); // 변환된 selectedYear 값 로깅
-    }
+
+    var boxName = req.query.year;
+    if(req.query.year === undefined)
+        boxName = "연도선택";
 
     const css = `
-    <link rel="stylesheet" href="../css/main.css">
     `;
     const search = `
     <form id="yearForm" method="get">
         <div class="dropdown">
-            <button type="button" class="dropbtn" id="dropdownButton">연도선택</button>
+            <button type="button" class="dropbtn" id="dropdownButton">${boxName}</button>
             <div id="myDropdown" class="dropdown-content">
                 ${[2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023].map(year => 
                     `<a href="#" onclick="selectYear(event, ${year})">${year}</a>`
@@ -60,7 +59,7 @@ router.get('/1', async (req, res, next) => {
             "건물용도": 1
         }}
     ]).toArray(); // 결과를 배열로 변환
-    console.log("받아온 쿼리 파라미터: ",data1);
+    //console.log("받아온 쿼리 파라미터: ",data1);
 
 
     //2.연도를 입력받아 서울시에서 거래된 가장 싼 건물의 정보 추출:
