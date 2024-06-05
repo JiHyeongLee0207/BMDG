@@ -41,7 +41,7 @@ router.get('/1', async (req, res, next) => {
 
     let year = selectedYear;
     year = parseInt(year);
-    const data = await collection.aggregate([
+    const data1 = await collection.aggregate([
         { $match: { 연도: year } },
         { $sort: { "물건금액(만원)": -1 } },
         { $limit: 1 },
@@ -57,20 +57,57 @@ router.get('/1', async (req, res, next) => {
             "건물용도": 1
         }}
     ]).toArray(); // 결과를 배열로 변환
-    console.log("받아온 쿼리 파라미터: ",data);
+    console.log("받아온 쿼리 파라미터: ",data1);
+
+    const data2 = await collection.aggregate([
+        { $match: { 연도: year } },
+        { $sort: { "물건금액(만원)": 1 } },
+        { $limit: 1 },
+        { $project: {
+            "_id":0,
+            "연도": 1,
+            "건물명":1,
+            "자치구명": 1,
+            "법정동명": 1,
+            "물건금액(만원)": 1,
+            "건물면적(㎡)": 1,
+            "층": 1,
+            "건물용도": 1
+        }}
+    ]).toArray(); // 결과를 배열로 변환
+    console.log("받아온 쿼리 파라미터: ",data2);
+
+
     
     // 결과를 HTML로 구성
-    const contents = data.length > 0 ? `<div>
-    <h2>검색 결과</h2>
-    <p>연도: ${data[0].연도}</p>
-    <p>건물명: ${data[0].건물명}</p>
-    <p>자치구명: ${data[0].자치구명}</p>
-    <p>법정동명: ${data[0].법정동명}</p>
-    <p>물건금액: ${data[0]["물건금액(만원)"]}만원</p>  
-    <p>건물면적: ${data[0]["건물면적(㎡)"]}㎡</p>     
-    <p>층: ${data[0].층}층</p>
-    <p>건물용도: ${data[0].건물용도}</p></div>
-    ` : '<div><p>결과가 없습니다.</p></div>';
+    const contents = (data1.length > 0 || data2.length > 0) ? `<div>
+    <h2>최대 물건금액 검색 결과</h2>
+    ${data1.length > 0 ? `<div>
+        <p>연도: ${data1[0].연도}</p>
+        <p>건물명: ${data1[0].건물명}</p>
+        <p>자치구명: ${data1[0].자치구명}</p>
+        <p>법정동명: ${data1[0].법정동명}</p>
+        <p>물건금액: ${formatKoreanCurrency(data1[0]["물건금액(만원)"])}</p>
+        <p>건물면적: ${data1[0]["건물면적(㎡)"]}㎡</p>
+        <p>층: ${data1[0].층}층</p>
+        <p>건물용도: ${data1[0].건물용도}</p>
+    </div>` : '<p>결과가 없습니다.</p>'}
+    <h2>최소 물건금액 검색 결과</h2>
+    ${data2.length > 0 ? `<div>
+        <p>연도: ${data2[0].연도}</p>
+        <p>건물명: ${data2[0].건물명}</p>
+        <p>자치구명: ${data2[0].자치구명}</p>
+        <p>법정동명: ${data2[0].법정동명}</p>
+        <p>물건금액: ${formatKoreanCurrency(data2[0]["물건금액(만원)"])}</p>
+        <p>건물면적: ${data2[0]["건물면적(㎡)"]}㎡</p>
+        <p>층: ${data2[0].층}층</p>
+        <p>건물용도: ${data2[0].건물용도}</p>
+    </div>` : '<p>결과가 없습니다.</p>'}
+</div>` : '<div><p>결과가 없습니다.</p></div>';
+
+console.log(contents);
+    
+
     
 
     const func = `
@@ -114,3 +151,18 @@ router.get('/2', (req, res, next) => {
 });
 
 module.exports = router;
+
+function formatKoreanCurrency(value) {
+    let result = '';
+    if (value >= 10000) {
+        const eok = Math.floor(value / 10000);
+        const man = value % 10000;
+        result = `${eok}억`;
+        if (man > 0) {
+            result += ` ${man}만원`;
+        }
+    } else {
+        result = `${value}만원`;
+    }
+    return result;
+}
