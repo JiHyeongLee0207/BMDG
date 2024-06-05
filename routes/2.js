@@ -15,13 +15,13 @@ router.get('/1', async (req, res, next) => {
   const client = new MongoClient(MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true });
   const db = await connectDB(client);
   const collection = await connectBMDG(db);
-
-  let purpose = req.querypurpose;
+  
+  let purpose = req.query.purpose;
   let fromYear = req.query.fromYear;
   let toYear = req.query.toYear;
-
+  
   console.log("받아온 쿼리 파라미터: ",fromYear,toYear,purpose);
-
+  
   var purposeBoxName = req.query.purpose;
   var fromYearBoxName = req.query.fromYear;
   var toYearBoxName = req.query.toYear;
@@ -31,107 +31,51 @@ router.get('/1', async (req, res, next) => {
     fromYearBoxName = "연도선택";
   if(req.query.toYear === undefined)
     toYearBoxName = "연도선택";
-
+  
   const css = `
-  <link rel="stylesheet" href="../css/2_1.css">
+  <link rel="stylesheet" href="../css/submitbtn.css">
   `;
   const search = `
   <form id="yearForm" method="get">
-      <div class="dropdown">
-          <button type="button" class="dropbtn" id="purposeDropdownButton">${purposeBoxName}</button>
-          <div class="dropdown-content">
-              ${["아파트", "오피스텔", "연립다세대", "단독다가구"].map(purpose => 
-                  `<a href="#" onclick="purpose(event, '${purpose}')">${purpose}</a>` // 여기를 수정
-              ).join('')}
-          </div>
-      </div>
-      <div class="dropdown">
-          <button type="button" class="dropbtn"  id="fromYearDropdownButton">${fromYearBoxName}</button>
-          <div class="dropdown-content">
-              ${[2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023].map(year => 
-                  `<a href="#" onclick="fromYear(event, ${year})">${year}</a>`
-              ).join('')}
-          </div>
-      </div>
-      <div class="dropdown">
-          <button type="button" class="dropbtn"  id="toYearDropdownButton">${toYearBoxName}</button>
-          <div class="dropdown-content">
-              ${[2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023].map(year => 
-                  `<a href="#" onclick="toYear(event, ${year})">${year}</a>`
-              ).join('')}
-          </div>
-      </div>
-      <div class="submit" style="display:inline-block">
-          <button type="button" class="submitbtn" id="submit">조회</button>
-      </div>
-      <input type="hidden" name="purpose" id="purpose">
-      <input type="hidden" name="fromYear" id="fromYear">
-      <input type="hidden" name="toYear" id="toYear">
+    <div class="dropdown">
+        <button type="button" class="dropbtn" id="purposeDropdownButton">${purposeBoxName}</button>
+        <div class="dropdown-content">
+            ${["아파트", "오피스텔", "연립다세대", "단독다가구"].map(data => 
+                `<a href="#" onclick="handlePurposeSelect(event, '${data}')">${data}</a>`
+            ).join('')}
+        </div>
+    </div>
+    <div class="dropdown">
+        <button type="button" class="dropbtn" id="fromYearDropdownButton">${fromYearBoxName}</button>
+        <div class="dropdown-content">
+            ${[2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023].map(data => 
+                `<a href="#" onclick="handleFromYearSelect(event, ${data})">${data}</a>`
+            ).join('')}
+        </div>
+    </div>
+    <div class="dropdown" style="display:none;" id="toYearDropdown">
+        <button type="button" class="dropbtn" id="toYearDropdownButton">${toYearBoxName}</button>
+        <div class="dropdown-content" id="toYearDropdownContent">
+            <!-- 종료 연도 옵션은 JavaScript를 통해 동적으로 생성됩니다 -->
+        </div>
+    </div>
+    <div class="formsubmit" style="display:none;" id="formSubmit" onclick="handleSubmit(event,'${purposeBoxName}','${fromYearBoxName}','${toYearBoxName}');" style="display:inline-block">
+        <button type="button" class="submitbtn" id="nonformSubmit">조회</button>
+    </div>
+    <input type="hidden" name="purpose" id="purpose">
+    <input type="hidden" name="fromYear" id="fromYear">
+    <input type="hidden" name="toYear" id="toYear">
   </form>
-  `;
+  `;  
   
   const contents = `
   
   `;
-
-  const func = `
-  function purpose(event, data) {
-      event.preventDefault(); // 기본 링크 동작을 막음
-
-      // 선택된 연도를 hidden input에 설정
-      document.getElementById('purpose').value = data;
-      
-      // 버튼 텍스트를 선택된 연도로 변경
-      document.getElementById('purposeDropdownButton').innerText = data;
-
-      // URL 쿼리 문자열을 변경
-      const url = new URL(window.location);
-      url.searchParams.set('data', data);
-      window.history.pushState({}, '', url);
-  }
-
-  function fromYear(event, data) {
-    event.preventDefault(); // 기본 링크 동작을 막음
-
-    // 선택된 연도를 hidden input에 설정
-    document.getElementById('fromYear').value = data;
-    
-    // 버튼 텍스트를 선택된 연도로 변경
-    document.getElementById('fromYearDropdownButton').innerText = data;
-
-    // URL 쿼리 문자열을 변경
-    const url = new URL(window.location);
-    url.searchParams.set('data', data);
-    window.history.pushState({}, '', url);
-  }
-  
-
-  function toYear(event, data) {
-    event.preventDefault(); // 기본 링크 동작을 막음
-
-    // 선택된 연도를 hidden input에 설정
-    document.getElementById('toYear').value = data;
-    
-    // 버튼 텍스트를 선택된 연도로 변경
-    document.getElementById('toYearDropdownButton').innerText = data;
-
-    // URL 쿼리 문자열을 변경
-    const url = new URL(window.location);
-    url.searchParams.set('data', data);
-    window.history.pushState({}, '', url);
-  }
-
-  function submit(event){
-    event.preventDefault();
-
-    showLoadingScreen();
-
-    document.getElementById('yearForm').submit();
-  }
+  const js = `
+    <script src="../js/2.js"></script>
   `;
-
   closeConnection(client);
-  res.send(template.make_page(css, search, contents, func));
+  res.send(template.make_page(css, search, contents, js));
 });
 
 router.get('/2', async (req, res, next) => {
@@ -140,7 +84,7 @@ router.get('/2', async (req, res, next) => {
   const db = await connectDB(client);
   const collection = await connectBMDG(db);
 
-  let purpose = req.querypurpose;
+  let purpose = req.query.purpose;
   let fromYear = req.query.fromYear;
   let toYear = req.query.toYear;
 
@@ -254,7 +198,7 @@ router.get('/2', async (req, res, next) => {
   `;
 
   closeConnection(client);
-  res.send(template.make_page(css, search, contents, func));
+  res.send(template.make_page(css, search, contents, js));
 });
 
 module.exports = router;
