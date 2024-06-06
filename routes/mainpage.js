@@ -11,6 +11,8 @@ router.get('/', (req, res, next) => {
         <p style="text-align:center">위의 메뉴를 선택해주세요.</p>
     `;
     const contents = `
+        <img src="./image/jihyeong.png" alt="이지형">
+
         <div>
             <h1>환영합니다!</h1>
             <br>
@@ -27,7 +29,6 @@ router.get('/', (req, res, next) => {
                     <p><b>Email</b> ichan0318@naver.com</p>
                 </div>
                 <div>
-                    <img src="./image/jihyeong.png" alt="이지형">
                     <p>이지형</p>
                     <p><b>Email</b> wptvkdldj@gmail.com</p>
                 </div>
