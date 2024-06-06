@@ -86,7 +86,7 @@ router.get('/1', async (req, res, next) => {
 
 
     const js = `
-    <script src="../js/1.js"></script>
+    <script src="../js/13.js"></script>
     `;
 
     closeConnection(client);

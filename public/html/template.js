@@ -75,7 +75,7 @@ module.exports = {
 
             <div id="loadingScreen" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background-color:rgba(255,255,255,0.6); z-index:1000;">
                 <div style="position:absolute; top:50%; left:50%; transform:translate(-50%, -50%);">
-                    <h1>Now Loading . . .</h1>
+                    <h1>Loading . . .</h1>
                 </div>
             </div>
 
@@ -101,5 +101,19 @@ module.exports = {
         </body>
         </html>
         `;
+    },
+    formatKoreanCurrency:function(value) {
+        let result = '';
+        if (value >= 10000) {
+            const eok = Math.floor(value / 10000);
+            const man = value % 10000;
+            result = `${eok}억`;
+            if (man > 0) {
+                result += ` ${man}만원`;
+            }
+        } else {
+            result = `${value}만원`;
+        }
+        return result;
     }
 }
