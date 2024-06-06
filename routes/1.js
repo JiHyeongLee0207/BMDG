@@ -120,6 +120,9 @@ router.get('/1', async (req, res, next) => {
     
     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
     <script>
+
+
+    
     
 
     
@@ -129,18 +132,16 @@ router.get('/1', async (req, res, next) => {
         x: ["제일 비싼 건물", "제일 싼 건물"],
         y: [${data1.length > 0 ? data1[0]["물건금액(만원)"] : ''}, ${data2.length > 0 ? data2[0]["물건금액(만원)"] : ''}],
         type: 'bar',
-        hoverinfo: 'text',
-        text: [
-            ${data1.length > 0 ? `'제일 비싼 건물: ' + ${data1[0]["물건금액(만원)"]}+'만원'`: ''},
-            ${data2.length > 0 ? `'제일 싼 건물: ' + ${data2[0]["물건금액(만원)"]}+'만원'` : ''}
-            ]
+        hovertemplate: '%{y} 만원',
+        name:''
     };
 
 
         const layout = {
             title: '서울시 건물 거래 정보',
             yaxis: {
-                title: '물건금액(만원)'
+                title: '물건금액(만원)',
+                tickformat: ','  // 천 단위 구분자를 사용하여 숫자를 표시합니다. 예: 1,000
             }
         };
 
@@ -166,7 +167,7 @@ router.get('/2',async (req, res, next) => {
     const db = await connectDB(client);
     const collection = await connectBMDG(db);
     let selectedYear = req.query.year;
-    //console.log("받아온 쿼리 파라미터: ",selectedYear);
+    console.log("받아온 쿼리 파라미터: ",selectedYear);
     if (!Number.isInteger(parseInt(selectedYear))) {
         selectedYear = parseInt(selectedYear);
         //console.log("Converted selectedYear to Number:", selectedYear); // 변환된 selectedYear 값 로깅
@@ -206,7 +207,9 @@ router.get('/2',async (req, res, next) => {
             "법정동명": 1,
             "면적대비가격": 1,
             "층": 1,
-            "건물용도": 1
+            "건물용도": 1,
+            "물건금액(만원)":1,
+            "건물면적(㎡)":1
         }}
     ]).toArray();
 
@@ -214,6 +217,9 @@ router.get('/2',async (req, res, next) => {
     expensiveBuildings.forEach(building => {
         building.면적대비가격 = parseInt(building.면적대비가격);
     });
+
+
+    console.log("받아온 쿼리 파라미!!!!!!!!!!!!!!!!!!!!: ",expensiveBuildings);
 
     // 연도를 입력받아 면적대비 가격이 싼 건물 3개의 정보 추출
     const cheapBuildings = await collection.aggregate([
@@ -231,6 +237,7 @@ router.get('/2',async (req, res, next) => {
             "층": 1,
             "건물용도": 1
         }}
+        
     ]).toArray();
 
     //int로 변환
@@ -302,7 +309,8 @@ router.get('/2',async (req, res, next) => {
                 x: cheapX,
                 y: cheapY,
                 type: 'bar',
-                name: '싼 건물',
+                name: '',
+                hoverinfo: 'y',
                 hovertemplate: '%{y} 만원'
             };
 
@@ -310,7 +318,11 @@ router.get('/2',async (req, res, next) => {
 
             const layout = {
                 title: '면적대비 가격',
-                barmode: 'group'
+                barmode: 'group',
+                yaxis: {
+                    title: '물건금액(만원)',
+                    tickformat: ',' // 천 단위 구분자를 사용하여 숫자를 표시합니다. 예: 1,000
+                }
             };
 
             Plotly.newPlot('plotly-chart', data, layout);

@@ -47,9 +47,8 @@ module.exports = {
                                 </div>
                                 <div class="menu-item">집사는 시기 알아보기
                                     <div class="submenu">
-                                        <div><a href="/5/1" onclick="showLoadingScreen();">이돈으로 몇년?</a></div>
-                                        <div><a href="/5/2" onclick="showLoadingScreen();">이돈으로 몇년?(최고가)</a></div>
-                                        <div><a href="/5/3" onclick="showLoadingScreen();">이돈으로 뭘?</a></div>
+                                        <div><a href="/5/1" onclick="showLoadingScreen();">이돈으로 몇년?(평균,최고)</a></div>
+                                        <div><a href="/5/2" onclick="showLoadingScreen();">이돈으로 뭘?</a></div>
                                     </div>
                                 </div>
                             </div>

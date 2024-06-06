@@ -97,7 +97,9 @@ router.get('/1', async (req, res, next) => {
             const data = {
                 x: ${JSON.stringify(data1.map(monthData => monthData._id + '월'))},
                 y: ${JSON.stringify(data1.map(monthData => monthData.계약수))},
-                type: 'bar'
+                type: 'bar',
+                name:'',
+                hovertemplate: '%{y}회',
             };
 
             const layout = {
@@ -106,7 +108,8 @@ router.get('/1', async (req, res, next) => {
                     title: '월'
                 },
                 yaxis: {
-                    title: '계약량'
+                    title: '계약량',
+                    tickformat: ','  // 천 단위 구분자를 사용하여 숫자를 표시합니다. 예: 1,000
                 }
             };
 
