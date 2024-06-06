@@ -3,6 +3,7 @@ const router = express.Router();
 const bodyParser = require('body-parser');
 const fs = require('fs');
 var template = require('../public/html/template.js');
+
 const { MongoClient } = require("mongodb");
 const {
   connectDB,
@@ -55,13 +56,14 @@ router.get('/1', async (req, res, next) => {
             ).join('')}
         </div>
     </div>
-    <div class="dropdown" style="display:none;" id="toYearDropdown">
+    &nbsp;~&nbsp;
+    <div class="dropdown" id="toYearDropdown">
         <button type="button" class="dropbtn" id="toYearDropdownButton">${toYearBoxName}</button>
         <div class="dropdown-content" id="toYearDropdownContent">
             <!-- 종료 연도 옵션은 JavaScript를 통해 동적으로 생성됩니다 -->
         </div>
     </div>
-    <div class="formsubmit" style="display:none;" id="formSubmit" onclick="handleSubmit(event,'${purposeBoxName}','${fromYearBoxName}','${toYearBoxName}');" style="display:inline-block">
+    <div class="formsubmit" id="formSubmit" onclick="handleSubmit(event,'${purposeBoxName}','${fromYearBoxName}','${toYearBoxName}');" style="display:inline-block">
         <button type="button" class="submitbtn" id="nonformSubmit">조회</button>
     </div>
     <input type="hidden" name="purpose" id="purpose">
@@ -106,7 +108,7 @@ router.get('/1', async (req, res, next) => {
           ${data1.map(yearData => `
               <tr>
                   <td>${yearData._id}</td>
-                  <td>${formatKoreanCurrency(yearData.평균거래가격.toFixed(0))}</td>
+                  <td>${template.formatKoreanCurrency(yearData.평균거래가격.toFixed(0))}</td>
               </tr>
           `).join('')}
       </tbody>
@@ -165,13 +167,13 @@ router.get('/2', async (req, res, next) => {
             ).join('')}
         </div>
     </div>
-    <div class="dropdown" style="display:none;" id="toYearDropdown">
+    <div class="dropdown" id="toYearDropdown">
         <button type="button" class="dropbtn" id="toYearDropdownButton">${toYearBoxName}</button>
         <div class="dropdown-content" id="toYearDropdownContent">
             <!-- 종료 연도 옵션은 JavaScript를 통해 동적으로 생성됩니다 -->
         </div>
     </div>
-    <div class="formsubmit" style="display:none;" id="formSubmit" onclick="handleSubmit(event,'${purposeBoxName}','${fromYearBoxName}','${toYearBoxName}');" style="display:inline-block">
+    <div class="formsubmit" id="formSubmit" onclick="handleSubmit(event,'${purposeBoxName}','${fromYearBoxName}','${toYearBoxName}');" style="display:inline-block">
         <button type="button" class="submitbtn" id="nonformSubmit">조회</button>
     </div>
     <input type="hidden" name="purpose" id="purpose">
@@ -230,20 +232,4 @@ router.get('/2', async (req, res, next) => {
   res.send(template.make_page(css, search, contents, js));
 });
 
-
 module.exports = router;
-
-function formatKoreanCurrency(value) {
-  let result = '';
-  if (value >= 10000) {
-      const eok = Math.floor(value / 10000);
-      const man = value % 10000;
-      result = `${eok}억`;
-      if (man > 0) {
-          result += ` ${man}만원`;
-      }
-  } else {
-      result = `${value}만원`;
-  }
-  return result;
-}
