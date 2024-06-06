@@ -125,13 +125,13 @@ router.get('/1', async (req, res, next) => {
         yearsRequired++;
     }
 
-    const contents = `
+    const contents = avgPriceData.length > 0 ? `
         <div>
             <h2>평균 가격 및 구매까지 소요되는 년 수</h2>
             <p>평균 가격: ${formatKoreanCurrency(avgPrice.toFixed(0))}</p>
             <p>구매까지 소요되는 년 수: ${yearsRequired}년</p>
         </div>
-    `;
+    ` : '<div><p>결과가 없습니다.</p></div>';
 
     console.log(contents);
 
@@ -246,7 +246,7 @@ router.get('/2', async (req, res, next) => {
         `;
     });
 
-    const contents = `
+    const contents = top5Data.length > 0 ? `
         <div>
             <h2>최고가 5개 건물 및 구매까지 소요되는 년 수</h2>
             <table>
@@ -262,7 +262,7 @@ router.get('/2', async (req, res, next) => {
                 </tbody>
             </table>
         </div>
-    `;
+    ` : '<div><p>결과가 없습니다.</p></div>';
 
     console.log(contents);
 
@@ -381,7 +381,7 @@ router.get('/3', async (req, res, next) => {
     });
     console.log("생성한  affordableContents: ",affordableContents);
 
-    const contents = `
+    const contents = affordableBuildings.length > 0 ? `
         <div>
             <h2>${years}년 내에 구매 가능한 건물 목록</h2>
             <table>
@@ -396,7 +396,7 @@ router.get('/3', async (req, res, next) => {
                 </tbody>
             </table>
         </div>
-    `;
+    ` : '<div><p>결과가 없습니다.</p></div>';
 
     const js = `
     <script src="../js/13.js"></script>
