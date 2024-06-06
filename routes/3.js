@@ -17,7 +17,9 @@ router.get('/1', async (req, res, next) => {
     const client = new MongoClient(MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true });
     const db = await connectDB(client);
     const collection = await connectBMDG(db);
+
     let selectedYear = req.query.year;
+
     console.log("받아온 쿼리 파라미터: ",selectedYear);
     if (!Number.isInteger(parseInt(selectedYear))) {
         selectedYear = parseInt(selectedYear);
@@ -26,6 +28,7 @@ router.get('/1', async (req, res, next) => {
 
     const css = `
     `;
+    
     const search = `
     <form id="yearForm" method="get">
         <div class="dropdown">
