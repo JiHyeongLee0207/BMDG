@@ -137,7 +137,7 @@ router.get('/1', async (req, res, next) => {
 
 
     const js = `
-    <script src="../js/1.js"></script>
+    <script src="../js/13.js"></script>
     `;
 
     closeConnection(client);
@@ -268,7 +268,7 @@ router.get('/2', async (req, res, next) => {
 
 
     const js = `
-    <script src="../js/1.js"></script>
+    <script src="../js/13.js"></script>
     `;
 
     closeConnection(client);
@@ -399,7 +399,7 @@ router.get('/3', async (req, res, next) => {
     `;
 
     const js = `
-    <script src="../js/1.js"></script>
+    <script src="../js/13.js"></script>
     `;
     closeConnection(client);
     res.send(template.make_page(css, search, contents, js));
