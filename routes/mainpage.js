@@ -1,6 +1,5 @@
 const express = require('express');
 const router = express.Router();
-const fs = require('fs');
 var template = require('../public/html/template.js');
 
 router.get('/', (req, res, next) => {
@@ -35,7 +34,8 @@ router.get('/', (req, res, next) => {
             </div>
         </div>
     `
-    res.send(template.make_page(css,search,contents));
+    const js = ``;
+    res.send(template.make_page(css,search,contents,js));
 });
 
 module.exports = router;

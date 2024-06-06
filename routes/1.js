@@ -89,7 +89,7 @@ router.get('/1', async (req, res, next) => {
         <p>건물명: ${data1[0].건물명}</p>
         <p>자치구명: ${data1[0].자치구명}</p>
         <p>법정동명: ${data1[0].법정동명}</p>
-        <p>물건금액: ${formatKoreanCurrency(data1[0]["물건금액(만원)"])}</p>
+        <p>물건금액: ${template.formatKoreanCurrency(data1[0]["물건금액(만원)"])}</p>
         <p>건물면적: ${data1[0]["건물면적(㎡)"]}m^2</p>
         <p>층: ${data1[0].층}층</p>
         <p>건물용도: ${data1[0].건물용도}</p>
@@ -101,7 +101,7 @@ router.get('/1', async (req, res, next) => {
         <p>건물명: ${data2[0].건물명}</p>
         <p>자치구명: ${data2[0].자치구명}</p>
         <p>법정동명: ${data2[0].법정동명}</p>
-        <p>물건금액: ${formatKoreanCurrency(data2[0]["물건금액(만원)"])}</p>
+        <p>물건금액: ${tempalte.formatKoreanCurrency(data2[0]["물건금액(만원)"])}</p>
         <p>건물면적: ${data2[0]["건물면적(㎡)"]}m^2</p>
         <p>층: ${data2[0].층}층</p>
         <p>건물용도: ${data2[0].건물용도}</p>
