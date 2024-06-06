@@ -30,7 +30,7 @@ router.get('/1', async (req, res, next) => {
         <div class="dropdown">
             <button type="button" class="dropbtn" id="dropdownButton">${boxName}</button>
             <div id="myDropdown" class="dropdown-content">
-                ${[2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023].map(year => 
+                ${[2023, 2022, 2021, 2020, 2019, 2018, 2017, 2016, 2015, 2014, 2013, 2012, 2011, 2010, 2009, 2008, 2007, 2006].map(year => 
                     `<a href="#" onclick="selectYear(event, ${year})">${year}</a>`
                 ).join('')}
             </div>
@@ -89,7 +89,7 @@ router.get('/1', async (req, res, next) => {
         <p>건물명: ${data1[0].건물명}</p>
         <p>자치구명: ${data1[0].자치구명}</p>
         <p>법정동명: ${data1[0].법정동명}</p>
-        <p>물건금액: ${template.formatKoreanCurrency(data1[0]["물건금액(만원)"])}</p>
+        <p>물건금액: ${template.template.formatKoreanCurrency(data1[0]["물건금액(만원)"])}</p>
         <p>건물면적: ${data1[0]["건물면적(㎡)"]}m^2</p>
         <p>층: ${data1[0].층}층</p>
         <p>건물용도: ${data1[0].건물용도}</p>
@@ -142,7 +142,7 @@ router.get('/2',async (req, res, next) => {
         <div class="dropdown">
             <button type="button" class="dropbtn" id="dropdownButton">연도선택</button>
             <div id="myDropdown" class="dropdown-content">
-                ${[2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023].map(year => 
+                ${[2023, 2022, 2021, 2020, 2019, 2018, 2017, 2016, 2015, 2014, 2013, 2012, 2011, 2010, 2009, 2008, 2007, 2006].map(year => 
                     `<a href="#" onclick="selectYear(event, ${year})">${year}</a>`
                 ).join('')}
             </div>

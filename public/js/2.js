@@ -18,7 +18,7 @@ function handleFromYearSelect(event, data) {
 
     var toYearDropdownContent = document.getElementById('toYearDropdownContent');
     toYearDropdownContent.innerHTML = ''; // 기존 옵션 초기화
-    for (let toYear = data; toYear <= 2023; toYear++) {
+    for (let toYear = 2023; toYear >= data; toYear--) {
         let option = `<a href="#" onclick="handleToYearSelect(event, ${toYear})">${toYear}</a>`;
         toYearDropdownContent.innerHTML += option;
     }

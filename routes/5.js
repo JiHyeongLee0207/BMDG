@@ -1,7 +1,6 @@
 const express = require('express');
 const router = express.Router();
 const bodyParser = require('body-parser');
-const fs = require('fs');
 var template = require('../public/html/template.js');
 const { MongoClient } = require("mongodb");
 const {
