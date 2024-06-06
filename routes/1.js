@@ -17,7 +17,7 @@ router.get('/1', async (req, res, next) => {
     const db = await connectDB(client);
     const collection = await connectBMDG(db);
     let selectedYear = req.query.year;
-    console.log("받아온 쿼리 파라미터: ",selectedYear);
+    //console.log("받아온 쿼리 파라미터: ",selectedYear);
 
     var boxName = req.query.year;
     if(req.query.year === undefined)
@@ -79,7 +79,7 @@ router.get('/1', async (req, res, next) => {
             "건물용도": 1
         }}
     ]).toArray(); // 결과를 배열로 변환
-    console.log("받아온 쿼리 파라미터: ",data2);
+    //console.log("받아온 쿼리 파라미터: ",data2);
 
 
     const contents = (data1.length > 0 || data2.length > 0) ? `<div>
@@ -111,7 +111,7 @@ router.get('/1', async (req, res, next) => {
     </div>` : '<p>결과가 없습니다.</p>'}
     </div>` : '<div><p>결과가 없습니다.</p></div>';
 
-console.log(contents);
+    //console.log(contents);
     
 
 
@@ -131,8 +131,8 @@ console.log(contents);
         type: 'bar',
         hoverinfo: 'text',
         text: [
-            ${data1.length > 0 ? `'제일 비싼 건물: ' + ${data1[0]["물건금액(만원)"]}` : ''},
-            ${data2.length > 0 ? `'제일 싼 건물: ' + ${data2[0]["물건금액(만원)"]}` : ''}
+            ${data1.length > 0 ? `'제일 비싼 건물: ' + ${data1[0]["물건금액(만원)"]}+'만원'`: ''},
+            ${data2.length > 0 ? `'제일 싼 건물: ' + ${data2[0]["물건금액(만원)"]}+'만원'` : ''}
             ]
     };
 
@@ -166,10 +166,10 @@ router.get('/2',async (req, res, next) => {
     const db = await connectDB(client);
     const collection = await connectBMDG(db);
     let selectedYear = req.query.year;
-    console.log("받아온 쿼리 파라미터: ",selectedYear);
+    //console.log("받아온 쿼리 파라미터: ",selectedYear);
     if (!Number.isInteger(parseInt(selectedYear))) {
         selectedYear = parseInt(selectedYear);
-        console.log("Converted selectedYear to Number:", selectedYear); // 변환된 selectedYear 값 로깅
+        //console.log("Converted selectedYear to Number:", selectedYear); // 변환된 selectedYear 값 로깅
     }
 
     const css = `
@@ -192,120 +192,132 @@ router.get('/2',async (req, res, next) => {
     let year = selectedYear;
     year = parseInt(year);
 
-    //연도를 입력받아 면적대비 가격이 싼 건물 5개의 정보 추출:
-    const data1 = await collection.aggregate([
+    // 연도를 입력받아 면적대비 가격이 비싼 건물 3개의 정보 추출
+    const expensiveBuildings = await collection.aggregate([
         { $match: { 연도: year } },
-        { $addFields: { "가격대비면적": { $divide: ["$물건금액(만원)", "$건물면적(㎡)"] } } },
-        { $sort: { "가격대비면적": -1 } },
+        { $addFields: { "면적대비가격": { $divide: ["$물건금액(만원)", "$건물면적(㎡)"] } } },
+        { $sort: { "면적대비가격": -1 } },
         { $limit: 3 },
         { $project: {
-            "_id":0,
+            "_id": 0,
             "연도": 1,
-            "건물명":1,
+            "건물명": 1,
             "자치구명": 1,
             "법정동명": 1,
-            "가격대비면적": 1,
+            "면적대비가격": 1,
             "층": 1,
             "건물용도": 1
         }}
-    ]).toArray(); // 결과를 배열로 변환
-    console.log("받아온 쿼리 파라미터: ",data1);
+    ]).toArray();
 
-    const data2 = await collection.aggregate([
+    //int로 변환
+    expensiveBuildings.forEach(building => {
+        building.면적대비가격 = parseInt(building.면적대비가격);
+    });
+
+    // 연도를 입력받아 면적대비 가격이 싼 건물 3개의 정보 추출
+    const cheapBuildings = await collection.aggregate([
         { $match: { 연도: year } },
-        { $addFields: { "가격대비면적": { $divide: ["$물건금액(만원)", "$건물면적(㎡)"] } } },
-        { $sort: { "가격대비면적": 1 } },
+        { $addFields: { "면적대비가격": { $divide: ["$물건금액(만원)", "$건물면적(㎡)"] } } },
+        { $sort: { "면적대비가격": 1 } },
         { $limit: 3 },
         { $project: {
-            "_id":0,
+            "_id": 0,
             "연도": 1,
-            "건물명":1,
+            "건물명": 1,
             "자치구명": 1,
             "법정동명": 1,
-            "가격대비면적": 1,
+            "면적대비가격": 1,
             "층": 1,
             "건물용도": 1
         }}
-    ]).toArray(); // 결과를 배열로 변환
-    console.log("받아온 쿼리 파라미터: ",data2);
+    ]).toArray();
+
+    //int로 변환
+    cheapBuildings.forEach(building => {
+        building.면적대비가격 = parseInt(building.면적대비가격);
+    });
 
     // 결과를 HTML로 구성
-    const contents = (data1.length > 0 || data2.length > 0) ? `
+    const contents = (expensiveBuildings.length > 0 || cheapBuildings.length > 0) ? `
     <div id="plotly-chart"></div>
+    
+
     <div>
-    <h2>가격대비 면적이 비싼 건물 검색 결과</h2>
-    ${data1.length > 0 ? data1.map(building => `
+    <h2>면적대비 가격이 비싼 건물 검색 결과</h2>
+    ${expensiveBuildings.length > 0 ? expensiveBuildings.map((building, index) => `
         <div>
             <p>연도: ${building.연도}</p>
-            <p>건물명: ${building.건물명}</p>
+            <p>건물명: 비싼 건물 ${index + 1}</p>
             <p>자치구명: ${building.자치구명}</p>
             <p>법정동명: ${building.법정동명}</p>
-            <p>가격대비면적: ${building.가격대비면적 ? building.가격대비면적.toFixed(2) : '정보 없음'}</p>
+            <p>면적대비가격: 1m^2당 ${building.면적대비가격 ? building.면적대비가격.toFixed(0)+"만원" : '정보 없음'}</p>
             <p>층: ${building.층}층</p>
             <p>건물용도: ${building.건물용도}</p>
+
+            
         </div>
     `).join('') : '<p>결과가 없습니다.</p>'}
 
-    <h2>가격대비 면적이 저렴한 건물 검색 결과</h2>
-    ${data2.length > 0 ? data2.map(building => `
+    <h2>면적대비가격이 저렴한 건물 검색 결과</h2>
+    ${cheapBuildings.length > 0 ? cheapBuildings.map((building, index) => `
         <div>
             <p>연도: ${building.연도}</p>
-            <p>건물명: ${building.건물명}</p>
+            <p>건물명: 싼 건물 ${index + 1}</p>
             <p>자치구명: ${building.자치구명}</p>
             <p>법정동명: ${building.법정동명}</p>
-            <p>가격대비면적: ${building.가격대비면적 ? building.가격대비면적.toFixed(2) : '정보 없음'}</p>
+            <p>면적대비가격: 1m^2당 ${building.면적대비가격 ? building.면적대비가격.toFixed(0)+"만원" : '정보 없음'}</p>
             <p>층: ${building.층}층</p>
             <p>건물용도: ${building.건물용도}</p>
         </div>
     `).join('') : '<p>결과가 없습니다.</p>'}
-    </div>` : '<div><p>결과가 없습니다.</p></div>'
-    
-    ;
+    </div>` : '<div><p>결과가 없습니다.</p></div>';
 
     console.log(contents);
-    
-    
+
+
     const js = `
     <script src="../js/13.js"></script>
-     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // 데이터를 사용하여 Plotly 그래프를 생성
-            const data1 = ${JSON.stringify(data1)};
-            const data2 = ${JSON.stringify(data2)};
+        const expensiveBuildings = ${JSON.stringify(expensiveBuildings)};
+        const cheapBuildings = ${JSON.stringify(cheapBuildings)};
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const expensiveX = expensiveBuildings.map((building, index) => \`비싼 건물 \${index + 1}\`);
+            const expensiveY = expensiveBuildings.map(building => building.면적대비가격);
+
+            const cheapX = cheapBuildings.map((building, index) => \`싼 건물 \${index + 1}\`);
+            const cheapY = cheapBuildings.map(building => building.면적대비가격);
 
             const trace1 = {
-                x: data1.map(building => building.건물명),
-                y: data1.map(building => building.가격대비면적),
+                x: expensiveX,
+                y: expensiveY,
                 type: 'bar',
                 name: '비싼 건물',
-                text: data1.map(building => '건물명: ' + building.건물명 + '<br>가격대비면적: ' + building.가격대비면적.toFixed(2) + '만원/㎡'),
-                hoverinfo: 'text'
+                hovertemplate: '%{y} 만원'
             };
 
             const trace2 = {
-                x: data2.map(building => building.건물명),
-                y: data2.map(building => building.가격대비면적),
+                x: cheapX,
+                y: cheapY,
                 type: 'bar',
                 name: '싼 건물',
-                text: data2.map(building => '건물명: ' + building.건물명 + '<br>가격대비면적: ' + building.가격대비면적.toFixed(2) + '만원/㎡'),
-                hoverinfo: 'text'
+                hovertemplate: '%{y} 만원'
             };
+
+            const data = [trace1, trace2];
 
             const layout = {
-                title: '가격대비 면적 비교',
-                xaxis: {
-                    title: '건물명'
-                },
-                yaxis: {
-                    title: '가격대비면적 (만원/㎡)'
-                }
+                title: '면적대비 가격',
+                barmode: 'group'
             };
 
-            Plotly.newPlot('plotly-chart', [trace1, trace2], layout);
+            Plotly.newPlot('plotly-chart', data, layout);
         });
     </script>
     `;
+
     
     closeConnection(client);
     res.send(template.make_page(css, search, contents, js));
