@@ -220,7 +220,7 @@ router.get('/1', async (req, res, next) => {
     
 
     const contents = `
-<div>
+    <div>
     ${avgPriceData.length > 0 ? `
         <div>
             <h1>${year}년기준 ${gu}에서 ${purpose}를 사려고 할 때, 매년 ${template.formatKoreanCurrency(income)}의 수익으로 ${annualExpenses}만원를 소비할때</h1>
@@ -246,10 +246,10 @@ router.get('/1', async (req, res, next) => {
             </table>
         </div>
     ` : '<div><p>최고가 5개 건물 정보가 없습니다.</p></div>'}
-</div>
-`;
+    </div>
+    `;
 
-console.log(contents);
+    console.log(contents);
 
 
     const js = `
@@ -261,9 +261,6 @@ console.log(contents);
 });
 
 
-
-
-
 // Query 14: 이돈으로 뭘? -----------------------------------------------------------------------------------------------------------------------
 router.get('/2', async (req, res, next) => {
     const MONGO_URI = process.env.MONGO_URI;
@@ -271,42 +268,139 @@ router.get('/2', async (req, res, next) => {
     const db = await connectDB(client);
     const collection = await connectBMDG(db);
 
-    let { year, purpose, gu, income, areaRange, rateIncrease, considerExpenses, annualExpenses } = req.query;
+    let { 
+        gu,
+        purpose,
+        year,
+        areaRange,
+        rateIncrease, // 체크박스
+        income, 
+        considerExpenses, // 체크박스
+        annualExpenses ,
+        years
+    } = req.query;
 
+    // numer로 변환
+    year = req.query.year;
+    income = req.query.income;
+    annualExpenses = req.query.annualExpenses;
+    if (!Number.isInteger(parseInt(year))) {
+        year = parseInt(year);
+        console.log("Converted year to Number:", year); // 변환된 year 값 로깅
+    }
+    if (!Number.isInteger(parseInt(income))) {
+        income = parseInt(income);
+        console.log("Converted income to Number:", income); // 변환된 year 값 로깅
+    }
 
-    purpose= "아파트";
-    gu= "강남구";
-    income= 5000, // 연봉 5000만원
-    areaRange= '32평~44평';
-    rateIncrease= true;
-    considerExpenses= true;
-    annualExpenses= 1000; // 연간 지출액 1000만원
-    years= 10;
+    if (!Number.isInteger(parseInt(annualExpenses))) {
+        annualExpenses = parseInt(annualExpenses);
+        console.log("Converted year to Number:", annualExpenses); // 변환된 year 값 로깅
+    }
+
+    if (!Number.isInteger(parseInt(years))) {
+        years = parseInt(years);
+        console.log("Converted year to Number:", years); // 변환된 year 값 로깅
+    }
+    
+
 
     const css = `
+    <link rel="stylesheet" href="../css/submitbtn.css">
     `;
 
     const search = `
     <form id="yearForm" method="get">
         <div class="dropdown">
-            <button type="button" class="dropbtn" id="dropdownButton">연도선택</button>
-            <div id="myDropdown" class="dropdown-content">
-                ${[2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023].map(year => 
-                    `<a href="#" onclick="selectYear(event, ${year})">${year}</a>`
+            <button type="button" class="dropbtn" id="guDropdownButton">지역구</button>
+            <div class="dropdown-content">
+                ${[
+                    "강남구", "강동구", "강북구", "강서구", "관악구", "광진구", "구로구", 
+                    "금천구", "노원구", "도봉구", "동대문구", "동작구", "마포구", "서대문구", 
+                    "서초구", "성동구", "성북구", "송파구", "양천구", "영등포구", "용산구", 
+                    "은평구", "종로구", "중구", "중랑구"
+                ].map(data => 
+                    `<a href="#" onclick="handleGuSelect(event, '${data}')">${data}</a>`
                 ).join('')}
             </div>
         </div>
+
+        <div class="dropdown">
+            <button type="button" class="dropbtn" id="purposeDropdownButton">용도</button>
+            <div class="dropdown-content">
+                ${["아파트", "오피스텔", "연립다세대", "단독다가구"].map(data => 
+                    `<a href="#" onclick="handlePurposeSelect(event, '${data}')">${data}</a>`
+                ).join('')}
+            </div>
+        </div>
+
+        <div class="dropdown">
+            <button type="button" class="dropbtn" id="yearDropdownButton">연도</button>
+            <div class="dropdown-content">
+                ${[2023, 2022, 2021, 2020, 2019, 2018, 2017, 2016, 2015, 2014, 2013, 2012, 2011, 2010, 2009, 2008, 2007, 2006].map(year => 
+                    `<a href="#" onclick="handleYearSelect(event, ${year})">${year}</a>`
+                ).join('')}
+            </div>
+        </div>
+
+        <div class="dropdown">
+            <button type="button" class="dropbtn" id="areaRangeDropdownButton">면적</button>
+            <div class="dropdown-content">
+                ${["20평 이하", "20평~32평", "32평~44평", "44평 이상"].map(area => 
+                    `<a href="#" onclick="handleAreaRangeSelect(event, '${area}')">${area}</a>`
+                ).join('')}
+            </div>
+        </div>
+
+        <div class="checkbox">
+            <div class="checkbox-inner">
+                <div>
+                    <input class="dropbtn dropbtn2" type="number" name="income" placeholder="연간 수익 (만원)(세후)">
+                </div>
+                <div>
+                    <input type="checkbox" name="rateIncrease" checked>
+                    <p>수익률 상승률 고려<p>
+                </div>
+                <div>
+                    <input class="dropbtn dropbtn2" type="number" name="annualExpenses" placeholder="연간 지출 (만원)">
+                </div>
+                <div>
+                    <input type="checkbox" name="considerExpenses" checked>
+                    <p>지출 상승률 고려<p>
+                </div>
+            </div>
+        </div>
+        &nbsp;X&nbsp;
+        <div class="dropdown">
+            <input class="dropbtn" type="number" name="years" placeholder="몇 년 동안?">
+        </div>
+
+        <div class="formsubmit" id="formSubmit" onclick="handleSubmit(event);" style="display:inline-block">
+            <button type="button" class="submitbtn" id="nonformSubmit">조회</button>
+        </div>
+        
+        <input type="hidden" name="gu" id="gu">
+        <input type="hidden" name="purpose" id="purpose">
         <input type="hidden" name="year" id="year">
+        <input type="hidden" name="areaRange" id="areaRange">
     </form>
     `;
 
+    console.log("받아온 파라미터들: ",
+        gu,
+        purpose,
+        year,
+        areaRange,
+        rateIncrease, // 체크박스
+        income, 
+        considerExpenses, // 체크박스
+        annualExpenses,
+        years
+    );
+
     year = parseInt(year);
-    console.log("받아온 쿼리 년도: ",year);
-    
     income = parseInt(income);
-    rateIncrease = rateIncrease === 'true';
-    considerExpenses = considerExpenses === 'true';
-    annualExpenses = parseInt(annualExpenses) || 0;
+    annualExpenses = parseInt(annualExpenses);
     years = parseInt(years);
 
     const matchStage = {
@@ -314,7 +408,7 @@ router.get('/2', async (req, res, next) => {
             연도: year,
             건물용도: purpose,
             자치구명: gu,
-        }``
+        }
     };
 
     switch(areaRange) {
@@ -352,7 +446,7 @@ router.get('/2', async (req, res, next) => {
             }
         },
         {
-            $sort: { "물건금액(만원)": 1 }
+            $sort: { "물건금액(만원)": -1 }
         }
     ]).toArray();
 

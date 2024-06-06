@@ -6,40 +6,40 @@ var template = require('../public/html/template.js');
 
 const { MongoClient } = require("mongodb");
 const {
-  connectDB,
-  connectBMDG,
-  closeConnection,
+    connectDB,
+    connectBMDG,
+    closeConnection,
 } = require("../db.js");
 
 
 //용도별 연별 평균가격--------------------------------------------------------------
-router.get('/1', async (req, res, next) => {
-  const MONGO_URI = process.env.MONGO_URI;
-  const client = new MongoClient(MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true });
-  const db = await connectDB(client);
-  const collection = await connectBMDG(db);
-  
-  let purpose = req.query.purpose;
-  let fromYear = req.query.fromYear;
-  let toYear = req.query.toYear;
-  
-  console.log("받아온 쿼리 파라미터: ",fromYear,toYear,purpose);
-  
-  var purposeBoxName = req.query.purpose;
-  var fromYearBoxName = req.query.fromYear;
-  var toYearBoxName = req.query.toYear;
-  if(req.query.purpose === undefined)
-    purposeBoxName = "용도선택";
-  if(req.query.fromYear === undefined)
-    fromYearBoxName = "연도선택";
-  if(req.query.toYear === undefined)
-    toYearBoxName = "연도선택";
-  
-  const css = `
-  <link rel="stylesheet" href="../css/submitbtn.css">
-  `;
-  const search = `
-  <form id="yearForm" method="get">
+    router.get('/1', async (req, res, next) => {
+    const MONGO_URI = process.env.MONGO_URI;
+    const client = new MongoClient(MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true });
+    const db = await connectDB(client);
+    const collection = await connectBMDG(db);
+    
+    let purpose = req.query.purpose;
+    let fromYear = req.query.fromYear;
+    let toYear = req.query.toYear;
+    
+    console.log("받아온 쿼리 파라미터: ",fromYear,toYear,purpose);
+    
+    var purposeBoxName = req.query.purpose;
+    var fromYearBoxName = req.query.fromYear;
+    var toYearBoxName = req.query.toYear;
+    if(req.query.purpose === undefined)
+        purposeBoxName = "용도선택";
+    if(req.query.fromYear === undefined)
+        fromYearBoxName = "연도선택";
+    if(req.query.toYear === undefined)
+        toYearBoxName = "연도선택";
+    
+    const css = `
+    <link rel="stylesheet" href="../css/submitbtn.css">
+    `;
+    const search = `
+    <form id="yearForm" method="get">
     <div class="dropdown">
         <button type="button" class="dropbtn" id="purposeDropdownButton">${purposeBoxName}</button>
         <div class="dropdown-content">
@@ -69,17 +69,17 @@ router.get('/1', async (req, res, next) => {
     <input type="hidden" name="purpose" id="purpose">
     <input type="hidden" name="fromYear" id="fromYear">
     <input type="hidden" name="toYear" id="toYear">
-  </form>
-  `;  
+    </form>
+    `;  
 
 
-  let year1 = fromYear;
-  year1 = parseInt(year1);
-  let year2 = toYear;
-  year2 = parseInt(year2);
-  
-  //5.용도별 연간 평균 가격
-  const data1 = await collection.aggregate([
+    let year1 = fromYear;
+    year1 = parseInt(year1);
+    let year2 = toYear;
+    year2 = parseInt(year2);
+    
+    //5.용도별 연간 평균 가격
+    const data1 = await collection.aggregate([
     { $match: {
         연도: { $gte: year1, $lte: year2 },
         건물용도: purpose
@@ -90,67 +90,100 @@ router.get('/1', async (req, res, next) => {
     }},
     { $sort: { _id: 1 } }
   ]).toArray(); // 결과를 배열로 변환
-      
 
-  console.log("받아온 쿼리 파라미터data: ",data1);
+    //int로 변환
+    data1.forEach(building => {
+    building.평균거래가격 = parseInt(building.평균거래가격);
+});
+
+
+
+    console.log("받아온 쿼리 파라미터data: ",data1);
 
   // 결과가 있는지 확인 후 출력
-  const contents = (data1.length > 0) ? `<div>
-  <h2>${purposeBoxName} 용도의 연간 평균 거래 가격</h2>
-  <table>
-      <thead>
-          <tr>
-              <th>연도</th>
-              <th>평균 거래 가격</th>
-          </tr>
-      </thead>
-      <tbody>
-          ${data1.map(yearData => `
-              <tr>
-                  <td>${yearData._id}</td>
-                  <td>${template.formatKoreanCurrency(yearData.평균거래가격.toFixed(0))}</td>
-              </tr>
-          `).join('')}
-      </tbody>
-  </table>
-  </div>` : '<div><p>결과가 없습니다.</p></div>';
+    const contents = (data1.length > 0) ? `
+    <div id="plotly-chart"></div>
+    <div>
+    <h2>${purposeBoxName} 용도의 연간 평균 거래 가격</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>연도</th>
+                <th>평균 거래 가격</th>
+            </tr>
+        </thead>
+        <tbody>
+            ${data1.map(yearData => `
+                <tr>
+                    <td>${yearData._id}</td>
+                    <td>${template.formatKoreanCurrency(yearData.평균거래가격.toFixed(0))}</td>
+                </tr>
+            `).join('')}
+        </tbody>
+    </table>
+    </div>` : '<div><p>결과가 없습니다.</p></div>';
 
-  const js = `
+    const js = `
     <script src="../js/2.js"></script>
-    `;
-  closeConnection(client);
-  res.send(template.make_page(css, search, contents, js));
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <script>
+    document.addEventListener('DOMContentLoaded', async function() {
+        const data = {
+            x: ${JSON.stringify(data1.map(item => item._id))}, // 연도
+            y: ${JSON.stringify(data1.map(item => item.평균거래가격))}, // 평균 거래 가격
+            type: 'bar', // 차트 유형: 바 차트
+            name: '',
+            hovertemplate: '%{y}만원',
+        };
+
+        const layout = {
+            title: '평균 거래가격',
+            xaxis: {
+                title: '연도'
+            },
+            yaxis: {
+                title: '평균 거래가격 (만원)',
+                tickformat: ','  // 천 단위 구분자를 사용
+            }
+        };
+
+        Plotly.newPlot('plotly-chart', [data], layout);
+    });
+    </script>`;
+
+    closeConnection(client);
+    res.send(template.make_page(css, search, contents, js));
 });
 
 
 //용도별 연별 거래량 수 --------------------------------------------------------------
 router.get('/2', async (req, res, next) => {
-  const MONGO_URI = process.env.MONGO_URI;
-  const client = new MongoClient(MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true });
-  const db = await connectDB(client);
-  const collection = await connectBMDG(db);
+    const MONGO_URI = process.env.MONGO_URI;
+    const client = new MongoClient(MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true });
+    const db = await connectDB(client);
+    const collection = await connectBMDG(db);
 
-  let purpose = req.query.purpose;
-  let fromYear = req.query.fromYear;
-  let toYear = req.query.toYear;
+    let purpose = req.query.purpose;
+    let fromYear = req.query.fromYear;
+    let toYear = req.query.toYear;
 
-  console.log("받아온 쿼리 파라미터: ",fromYear,toYear,purpose);
+    console.log("받아온 쿼리 파라미터: ",fromYear,toYear,purpose);
 
-  var purposeBoxName = req.query.purpose;
-  var fromYearBoxName = req.query.fromYear;
-  var toYearBoxName = req.query.toYear;
-  if(req.query.purpose === undefined)
-    purposeBoxName = "용도선택";
-  if(req.query.fromYear === undefined)
-    fromYearBoxName = "연도선택";
-  if(req.query.toYear === undefined)
-    toYearBoxName = "연도선택";
+    var purposeBoxName = req.query.purpose;
+    var fromYearBoxName = req.query.fromYear;
+    var toYearBoxName = req.query.toYear;
+    if(req.query.purpose === undefined)
+        purposeBoxName = "용도선택";
+    if(req.query.fromYear === undefined)
+        fromYearBoxName = "연도선택";
+    if(req.query.toYear === undefined)
+        toYearBoxName = "연도선택";
 
-  const css = `
-  <link rel="stylesheet" href="../css/submitbtn.css">
-  `;
-  const search = `
-  <form id="yearForm" method="get">
+    const css = `
+    <link rel="stylesheet" href="../css/submitbtn.css">
+    `;
+    const search = `
+    <form id="yearForm" method="get">
     <div class="dropdown">
         <button type="button" class="dropbtn" id="purposeDropdownButton">${purposeBoxName}</button>
         <div class="dropdown-content">
@@ -180,16 +213,16 @@ router.get('/2', async (req, res, next) => {
     <input type="hidden" name="purpose" id="purpose">
     <input type="hidden" name="fromYear" id="fromYear">
     <input type="hidden" name="toYear" id="toYear">
-  </form>
-  `;  
-  
-  let year1 = fromYear;
-  year1 = parseInt(year1);
-  let year2 = toYear;
-  year2 = parseInt(year2);
-  
-  //6.용도별 연간 평균 거래량 
-  const data1 = await collection.aggregate([
+    </form>
+    `;  
+    
+    let year1 = fromYear;
+    year1 = parseInt(year1);
+    let year2 = toYear;
+    year2 = parseInt(year2);
+    
+    //6.용도별 연간 평균 거래량 
+    const data1 = await collection.aggregate([
     { $match: {
         연도: { $gte: year1, $lte: year2 },
         건물용도: purpose
@@ -200,37 +233,64 @@ router.get('/2', async (req, res, next) => {
     }},
     { $sort: { _id: 1 } }
   ]).toArray(); // 결과를 배열로 변환
-      
+        
 
-  console.log("받아온 쿼리 파라미터: ",data1);
+    console.log("받아온 쿼리 파라미터: ",data1);
 
-  // 결과가 있는지 확인 후 출력
-  const contents = (data1.length > 0) ? `<div>
-  <h2>${purposeBoxName} 용도의 연간 거래량</h2>
-  <table>
-      <thead>
-          <tr>
-              <th>연도</th>
-              <th>거래량</th>
-          </tr>
-      </thead>
-      <tbody>
-          ${data1.map(yearData => `
-              <tr>
-                  <td>${yearData._id}</td>
-                  <td>${yearData.거래량}</td>
-              </tr>
-          `).join('')}
-      </tbody>
-  </table>
-  </div>` : '<div><p>결과가 없습니다.</p></div>';
+    // 결과가 있는지 확인 후 출력
+    const contents = (data1.length > 0) ? `
+    <div id="plotly-chart"></div>
+    <div>
+    <h2>${purposeBoxName} 용도의 연간 거래량</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>연도</th>
+                <th>거래량</th>
+            </tr>
+        </thead>
+        <tbody>
+            ${data1.map(yearData => `
+                <tr>
+                    <td>${yearData._id}</td>
+                    <td>${yearData.거래량}</td>
+                </tr>
+            `).join('')}
+        </tbody>
+    </table>
+    </div>` : '<div><p>결과가 없습니다.</p></div>';
 
-  const js = `
-  <script src="../js/2.js"></script>
-  `;
+    const js = `
+    <script src="../js/2.js"></script>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <script>
+    document.addEventListener('DOMContentLoaded', async function() {
+        const data = {
+            x: ${JSON.stringify(data1.map(item => item._id))}, // 연도
+            y: ${JSON.stringify(data1.map(item => item.거래량))}, // 평균 거래 가격
+            type: 'bar', // 차트 유형: 바 차트
+            name: '',
+            hovertemplate: '%{y}회',
+        };
 
-  closeConnection(client);
-  res.send(template.make_page(css, search, contents, js));
-});
+        const layout = {
+            title: '평균 거래량',
+            xaxis: {
+                title: '연도'
+            },
+            yaxis: {
+                title: '평균 거래가격 (만원)',
+                tickformat: ','  // 천 단위 구분자를 사용
+            }
+        };
+
+        Plotly.newPlot('plotly-chart', [data], layout);
+    });
+    </script>`;
+    
+
+    closeConnection(client);
+    res.send(template.make_page(css, search, contents, js));
+    });
 
 module.exports = router;
