@@ -67,6 +67,7 @@ router.get('/1', async (req, res, next) => {
 
     const contents = (data1.length > 0) ? `<div>
         <h2> ${year}년 월별 계약량</h2>
+        <div id="plotly-chart"></div>
         <table>
             <thead>
                 <tr>
@@ -90,6 +91,30 @@ router.get('/1', async (req, res, next) => {
 
     const js = `
     <script src="../js/13.js"></script>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const data = {
+                x: ${JSON.stringify(data1.map(monthData => monthData._id + '월'))},
+                y: ${JSON.stringify(data1.map(monthData => monthData.계약수))},
+                type: 'bar'
+            };
+
+            const layout = {
+                title: '${year}년 월별 계약량',
+                xaxis: {
+                    title: '월'
+                },
+                yaxis: {
+                    title: '계약량'
+                }
+            };
+
+            Plotly.newPlot('plotly-chart', [data], layout);
+        });
+
+    </script>
+    
     `;
 
     closeConnection(client);

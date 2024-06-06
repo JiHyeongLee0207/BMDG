@@ -83,6 +83,9 @@ router.get('/1', async (req, res, next) => {
 
 
     const contents = (data1.length > 0 || data2.length > 0) ? `<div>
+
+    <div id="plotly-chart"></div>   
+
     <h2>최대 물건금액 검색 결과</h2>
     ${data1.length > 0 ? `<div>
         <p>연도: ${data1[0].연도}</p>
@@ -114,6 +117,41 @@ console.log(contents);
 
     const js = `
     <script src="../js/13.js"></script>
+    
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <script>
+    
+
+    
+    document.addEventListener('DOMContentLoaded', function() {
+        // 시각화를 위한 데이터 가공
+        const trace1 = {
+        x: ["제일 비싼 건물", "제일 싼 건물"],
+        y: [${data1.length > 0 ? data1[0]["물건금액(만원)"] : ''}, ${data2.length > 0 ? data2[0]["물건금액(만원)"] : ''}],
+        type: 'bar',
+        hoverinfo: 'text',
+        text: [
+            ${data1.length > 0 ? `'제일 비싼 건물: ' + ${data1[0]["물건금액(만원)"]}` : ''},
+            ${data2.length > 0 ? `'제일 싼 건물: ' + ${data2[0]["물건금액(만원)"]}` : ''}
+            ]
+    };
+
+
+        const layout = {
+            title: '서울시 건물 거래 정보',
+            yaxis: {
+                title: '물건금액(만원)'
+            }
+        };
+
+        // 시각화된 차트를 HTML에 추가
+        const divId = 'plotly-chart';
+        const plotData = [trace1];
+        const plotLayout = layout;
+        Plotly.newPlot(divId, plotData, plotLayout);
+    });
+    </script>
+
     `;
 
     closeConnection(client);
@@ -159,7 +197,7 @@ router.get('/2',async (req, res, next) => {
         { $match: { 연도: year } },
         { $addFields: { "가격대비면적": { $divide: ["$물건금액(만원)", "$건물면적(㎡)"] } } },
         { $sort: { "가격대비면적": -1 } },
-        { $limit: 5 },
+        { $limit: 3 },
         { $project: {
             "_id":0,
             "연도": 1,
@@ -177,7 +215,7 @@ router.get('/2',async (req, res, next) => {
         { $match: { 연도: year } },
         { $addFields: { "가격대비면적": { $divide: ["$물건금액(만원)", "$건물면적(㎡)"] } } },
         { $sort: { "가격대비면적": 1 } },
-        { $limit: 5 },
+        { $limit: 3 },
         { $project: {
             "_id":0,
             "연도": 1,
@@ -192,7 +230,9 @@ router.get('/2',async (req, res, next) => {
     console.log("받아온 쿼리 파라미터: ",data2);
 
     // 결과를 HTML로 구성
-    const contents = (data1.length > 0 || data2.length > 0) ? `<div>
+    const contents = (data1.length > 0 || data2.length > 0) ? `
+    <div id="plotly-chart"></div>
+    <div>
     <h2>가격대비 면적이 비싼 건물 검색 결과</h2>
     ${data1.length > 0 ? data1.map(building => `
         <div>
@@ -218,13 +258,53 @@ router.get('/2',async (req, res, next) => {
             <p>건물용도: ${building.건물용도}</p>
         </div>
     `).join('') : '<p>결과가 없습니다.</p>'}
-    </div>` : '<div><p>결과가 없습니다.</p></div>';
+    </div>` : '<div><p>결과가 없습니다.</p></div>'
+    
+    ;
 
     console.log(contents);
     
     
     const js = `
     <script src="../js/13.js"></script>
+     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // 데이터를 사용하여 Plotly 그래프를 생성
+            const data1 = ${JSON.stringify(data1)};
+            const data2 = ${JSON.stringify(data2)};
+
+            const trace1 = {
+                x: data1.map(building => building.건물명),
+                y: data1.map(building => building.가격대비면적),
+                type: 'bar',
+                name: '비싼 건물',
+                text: data1.map(building => '건물명: ' + building.건물명 + '<br>가격대비면적: ' + building.가격대비면적.toFixed(2) + '만원/㎡'),
+                hoverinfo: 'text'
+            };
+
+            const trace2 = {
+                x: data2.map(building => building.건물명),
+                y: data2.map(building => building.가격대비면적),
+                type: 'bar',
+                name: '싼 건물',
+                text: data2.map(building => '건물명: ' + building.건물명 + '<br>가격대비면적: ' + building.가격대비면적.toFixed(2) + '만원/㎡'),
+                hoverinfo: 'text'
+            };
+
+            const layout = {
+                title: '가격대비 면적 비교',
+                xaxis: {
+                    title: '건물명'
+                },
+                yaxis: {
+                    title: '가격대비면적 (만원/㎡)'
+                }
+            };
+
+            Plotly.newPlot('plotly-chart', [trace1, trace2], layout);
+        });
+    </script>
     `;
     
     closeConnection(client);
