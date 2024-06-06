@@ -26,6 +26,14 @@ button {
     outline: none; /* 포커스 시 아웃라인 제거 */
 }
 
+input[type=checkbox]{
+    margin: 0;
+}
+
+input[type=checkbox]:checked{
+
+}
+
 a {
     text-decoration: none; /* 밑줄 제거 */
     color: inherit; /* 부모 요소의 색상 상속 */
@@ -137,14 +145,38 @@ a:hover, a:focus, a:active {
 
 .search-inner > form{
     text-align: center;
+    align-items: center;
 }
 
 .hidden{
     display: none;
 }
 
+.checkbox {
+    position: relative;
+    display: inline-block;
+    vertical-align: middle; /* 이 부분을 추가 */
+}
+
+.checkbox * {
+    display: inline;
+    align-items: center;
+    padding: 0px 4px;
+}
+
+.checkbox-inner{    
+    display: grid;
+    text-align: left;
+    grid-template-rows: auto auto;
+    grid-template-columns: auto auto;
+}
+
+.checkbox-inner > div{
+    padding: 4px;
+}
+
 /* 드롭다운 컨테이너 스타일 */
-.dropdown {
+.dropdown{
     position: relative;
     display: inline-block;
 }
@@ -158,10 +190,19 @@ a:hover, a:focus, a:active {
     background-color: white;
     border: 2px solid rgba(0,0,0,10%);
     border-radius: 10px;
-    min-width: 160px;
+    min-width: 120px;
+    max-width: 120px;
     padding: 16px;
-    font-size: 16px;
+    margin-left: 6px;
+    margin-right: 6px;
     cursor: default;
+}
+
+.dropbtn2{
+    padding:0;
+    min-width: 200px;
+    max-width: 200px;
+    border-radius: 4px;
 }
 
 /* 드롭다운 메뉴 스타일 */
@@ -170,7 +211,8 @@ a:hover, a:focus, a:active {
     position: absolute;
     background-color: white;
     border-radius: 10px;
-    min-width: 160px;
+    min-width: 120px;
+    max-width: 120px;
     max-height: 200px;
     overflow-y: auto;
     box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);

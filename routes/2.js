@@ -167,6 +167,7 @@ router.get('/2', async (req, res, next) => {
             ).join('')}
         </div>
     </div>
+    &nbsp;~&nbsp;
     <div class="dropdown" id="toYearDropdown">
         <button type="button" class="dropbtn" id="toYearDropdownButton">${toYearBoxName}</button>
         <div class="dropdown-content" id="toYearDropdownContent">
