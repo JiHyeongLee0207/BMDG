@@ -178,7 +178,7 @@ router.get('/1', async (req, res, next) => {
     let currentSavings = 0; //현재 저축액
     let currentIncome = income; //현재 수입
     let expense = 12*annualExpenses; //지출
-    
+
     // 평균 가격보다 적절한 저축이 될 때까지 반복하여 연도를 계산
     // 최고가를 가진 건물의 가격보다 적절한 저축이 될 때까지 반복하여 연도를 계산
     while (currentSavings < avgPrice) {
@@ -188,6 +188,8 @@ router.get('/1', async (req, res, next) => {
         if (considerExpenses) expense *= 1.024; // 지출 상승률 적용 (2.4% 상승)
         yearsRequired++; // 소요된 연도 증가
     }
+    const answer = yearsRequired;
+    const realannualExpenses=annualExpenses*12;
     
     // 기준표 : kosis 국가통계표
     // 임금 상승률 12~23년간 총 12년 평균 3.7
@@ -232,6 +234,8 @@ router.get('/1', async (req, res, next) => {
     
     // 결과를 HTML 형식으로 포맷하여 생성
     const contents = `
+    <div id="plotly-chart"></div>
+    <div id="plotly-chart2"></div>
     <div>
     ${avgPriceData.length > 0 ? `
         <div>
@@ -267,6 +271,147 @@ router.get('/1', async (req, res, next) => {
 
     const js = `
     <script src="../js/5.js"></script>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <script> // 수입, 지출, 순수익차트
+        document.addEventListener("DOMContentLoaded", function(event) {
+            // 수입, 지출, 순수익 계산
+            const income = ${income};
+            const expense = ${realannualExpenses};
+            const netIncome = income - expense;
+
+            var data = [
+                {
+                    name: "수입+지출+자금", // 차트 이름
+                    type: "waterfall", // 차트 유형
+                    orientation: "v", // 차트 방향 (수직)
+                    measure: [
+                        "relative", // 상대값으로 시작
+                        "relative", // 총합값으로 종료
+                        "total" // 총합값으로 종료
+                    ],
+                    x: [
+                        "수입", // x축 레이블
+                        "지출", // x축 레이블
+                        "자금" // x축 레이블
+                    ],
+                    textposition: "outside",
+                    text: [
+                        income + "만원", // 수입 값
+                        -expense + "만원", // 지출 값 (수입에서 빼므로 음수로 표시)
+                        netIncome + "만원"// 자금 값
+                    ],          
+                    y: [
+                        income, // 수입 값
+                        -expense, // 지출 값 (수입에서 빼므로 음수로 표시)
+                        netIncome // 자금 값
+                    ],
+                    hovertemplate: '%{y}만원<extra></extra>', // <--- 여기에 hoverinfo 속성 추가
+                    connector: {
+                        line: {
+                            color: "rgb(63, 63, 63)"
+                        }
+                    },
+                }
+            ];
+
+            var layout = {
+                title: {
+                    text: "수입, 지출, 자금" // 차트 제목
+                },
+                xaxis: {
+                    type: "category" // x축 타입
+                },
+                yaxis: {
+                    type: "linear", // y축 타입
+                    range: [0, Math.max(income, -expense, netIncome) * 1.2] // y축 범위 조정
+                },
+                autosize: true, // 차트 크기 자동 조정
+                showlegend: true // 범례 표시 여부
+            };
+
+            Plotly.newPlot('plotly-chart', data, layout); // 차트 생성
+        });
+    </script>
+
+
+    <script>
+    document.addEventListener("DOMContentLoaded", function(event) {
+        // 수입, 지출, 순수익 계산 및 초기 설정
+        let currentIncome = ${income}; // 현재 수입
+        let expense = ${realannualExpenses}; // 월 지출을 연간 지출로 변환
+        let netIncome = currentIncome - expense; // 순수익
+        let target = ${avgPrice}; // 목표 가격
+
+        // 반복 횟수 설정
+        const repeatCount = ${answer}; // 필요한 연도 계산 결과 사용
+        var xValues = [];
+        var yValues = [];
+        var textValues = [];
+        var measures = [];
+
+    // 반복해서 데이터 생성
+        for (let i = 0; i < repeatCount; i++) {
+            xValues.push(\`수입 \${i+1}\`);
+            yValues.push(currentIncome);
+            textValues.push(currentIncome.toFixed(0) + "만원");
+            measures.push("relative");
+
+            xValues.push(\`지출 \${i+1}\`);
+            yValues.push(-expense);
+            textValues.push((-expense).toFixed(0) + "만원");
+            measures.push("relative");
+
+            xValues.push(\`\${i+1}년\`);
+            yValues.push(currentIncome-expense);
+            textValues.push((currentIncome-expense).toFixed(0) + "만원");
+            measures.push("total");
+
+            // 수입과 지출에 상승률 적용
+            currentIncome *= 1.037; // 수입 상승률 적용
+            expense *= 1.024; // 지출 상승률 적용
+        }
+
+        var data = [{
+            name: "수입+지출+순수익",
+            type: "waterfall",
+            orientation: "v",
+            measure: measures,
+            x: xValues,
+            textposition: "outside",
+            text: textValues,
+            y: yValues,
+            hovertemplate: '%{y:,.0f}만원<extra></extra>',
+            connector: {
+                line: {
+                    color: "rgb(63, 63, 63)"
+                }
+            },
+        }];
+
+        var layout = {
+            title: {
+                text: "구매까지 ${answer}년 반복  " // 차트 제목
+            },
+            xaxis: {
+                type: "category" // x축 타입
+            },
+            yaxis: {
+                title: '평균 거래 가격(만원)',
+                type: "linear", // y축 타입
+                range: [0,target+10000], // y축 범위 조정
+                tickformat: ',', // 천 단위마다 쉼표 추가
+                hoverformat: ',' // hover 시 천 단위마다 쉼표 추가
+            },
+            autosize: true, // 차트 크기 자동 조정
+            showlegend: true // 범례 표시 여부
+        };
+
+        Plotly.newPlot('plotly-chart2', data, layout); // 차트 생성
+    });
+    </script>
+
+
+
     `;
 
     closeConnection(client);
