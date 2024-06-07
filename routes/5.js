@@ -95,14 +95,14 @@ router.get('/1', async (req, res, next) => {
         <div class="checkbox">
             <div class="checkbox-inner">
                 <div>
-                    <input type="number" name="income" placeholder="연간 수익 (만원)(세후)">
+                    <input type="number" name="income" placeholder="세후 연봉 (만원)">
                 </div>
                 <div>
                     <input type="checkbox" name="rateIncrease" checked>
                     <p>수익률 상승률 고려<p>
                 </div>
                 <div>
-                    <input type="number" name="annualExpenses" placeholder="연간 지출 (만원)">
+                    <input type="number" name="annualExpenses" placeholder="한달 지출 (만원)">
                 </div>
                 <div>
                     <input type="checkbox" name="considerExpenses" checked>
@@ -173,41 +173,53 @@ router.get('/1', async (req, res, next) => {
 
     const avgPrice = avgPriceData.length > 0 ? avgPriceData[0].avgPrice : 0;
 
-    let yearsRequired = 0;
-    let currentSavings = 0;
-    let currentIncome = income;
-
+    // 필요한 연도를 계산하는 데 사용될 변수 및 초기화
+    let yearsRequired = 0; //필요년도
+    let currentSavings = 0; //현재 저축액
+    let currentIncome = income; //현재 수입
+    let expense = 12*annualExpenses; //지출
+    
+    // 평균 가격보다 적절한 저축이 될 때까지 반복하여 연도를 계산
+    // 최고가를 가진 건물의 가격보다 적절한 저축이 될 때까지 반복하여 연도를 계산
     while (currentSavings < avgPrice) {
-        currentSavings += currentIncome;
-        if (considerExpenses) currentSavings -= annualExpenses;
-        if (rateIncrease) currentIncome *= 1.03;
-        yearsRequired++;
+        currentSavings += currentIncome;  // 수입 저축
+        currentSavings -= expense; // 지출 빼기
+        if (rateIncrease) currentIncome *= 1.037; // 수입 상승률 적용 (3.7% 상승)
+        if (considerExpenses) expense *= 1.024; // 지출 상승률 적용 (2.4% 상승)
+        yearsRequired++; // 소요된 연도 증가
     }
+    
+    // 기준표 : kosis 국가통계표
+    // 임금 상승률 12~23년간 총 12년 평균 3.7
+    // 물가상승률  총 18년간 평균 2.39
+    
 
-    //쿼리13 이돈으로 몇년?(최고가)
+    // 쿼리13: 최고가를 가진 5개 건물 정보를 가져옴
     const top5Data = await collection.aggregate([
-        matchStage,
-        {
-            $sort: { "물건금액(만원)": -1 }
-        },
-        {
-            $limit: 5
-        }
+        matchStage, // 사용자가 선택한 조건에 따라 문서 필터링
+        { $sort: { "물건금액(만원)": -1 } }, // 물건금액(만원)을 기준으로 내림차순 정렬
+        { $limit: 5 } // 상위 5개 결과만 반환
     ]).toArray();
 
+    
+    // 최고가를 가진 5개 건물의 정보를 반복하여 연도를 계산하고 HTML 표로 만듦
     let top5Contents = '';
     top5Data.forEach(building => {
         let yearsRequired2 = 0;
         let currentSavings2 = 0;
-        let currentIncome2 = income;
-
+        let currentIncome = income;
+        let expense = 12*annualExpenses; //지출
+    
+        // 최고가를 가진 건물의 가격보다 적절한 저축이 될 때까지 반복하여 연도를 계산
         while (currentSavings2 < building["물건금액(만원)"]) {
-            currentSavings2 += currentIncome2;
-            if (considerExpenses) currentSavings2 -= annualExpenses;
-            if (rateIncrease) currentIncome2 *= 1.03;
-            yearsRequired2++;
+            currentSavings2 += currentIncome;  // 수입 저축
+            currentSavings2 -= expense; // 지출 빼기
+            if (rateIncrease) currentIncome *= 1.037; // 수입 상승률 적용 (3.7% 상승)
+            if (considerExpenses) expense *= 1.024; // 지출 상승률 적용 (2.4% 상승)
+            yearsRequired2++; // 소요된 연도 증가
         }
-
+    
+        // 최고가 건물 정보를 HTML 형식의 문자열로 추가
         top5Contents += `
             <tr>
                 <td>${building.건물명}</td>
@@ -216,15 +228,16 @@ router.get('/1', async (req, res, next) => {
             </tr>
         `;
     });
-
     
-
+    
+    // 결과를 HTML 형식으로 포맷하여 생성
     const contents = `
     <div>
     ${avgPriceData.length > 0 ? `
         <div>
-            <h1>${year}년기준 ${gu}에서 ${purpose}를 사려고 할 때, 매년 ${template.formatKoreanCurrency(income)}의 수익으로 ${annualExpenses}만원를 소비할때</h1>
-            <h2> ${purpose} 평균 가격 및 구매까지 소요되는 년 수</h2>
+            <h1>${year}년 기준 ${gu}에서 ${areaRange} ${purpose}를 사려고 한다, 
+            <br>매년 연봉 ${template.formatKoreanCurrency(income)}으로 한달에 ${template.formatKoreanCurrency(annualExpenses)}씩 쓸때</h1>
+            <h2>단 한번도 안짤리고 연속으로 일해야하는 년 수 과 평균 가격</h2>
             <p>평균 가격: ${template.formatKoreanCurrency(avgPrice.toFixed(0))}</p>
             <p>구매까지 소요되는 년 수: ${yearsRequired}년</p>
         </div>
@@ -248,9 +261,9 @@ router.get('/1', async (req, res, next) => {
     ` : '<div><p>최고가 5개 건물 정보가 없습니다.</p></div>'}
     </div>
     `;
-
-    console.log(contents);
-
+    
+    console.log(contents); // 결과 출력
+    
 
     const js = `
     <script src="../js/5.js"></script>
