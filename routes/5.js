@@ -594,6 +594,7 @@ router.get('/2', async (req, res, next) => {
     let totalSavings = 0;
     let currentIncome = income;
     let expense = 12*annualExpenses; //지출
+    const realannualExpenses=annualExpenses*12;
 
     for (let i = 0; i < years; i++) {
         totalSavings += currentIncome;
@@ -630,8 +631,11 @@ router.get('/2', async (req, res, next) => {
 
     // 결과를 HTML 형식으로 포맷하여 생성
     const contents = `
+    
     <div>
     ${affordableBuildings.length > 0 ? `
+
+        <div id="plotly-chart2"></div>
         <div>
             <h1>${year}년 기준 ${gu}에서 ${areaRange} ${purpose}를 사려고 한다 
             <br>매년 연봉 ${template.formatKoreanCurrency(income)}으로 한달에 ${template.formatKoreanCurrency(annualExpenses)}씩 쓸때</h1>
@@ -648,12 +652,137 @@ router.get('/2', async (req, res, next) => {
                 </tbody>
             </table>
         </div>
+        <div id="plotly-chart"></div>
     ` : `'<div><h1> ${year}년 기준 ${gu}에서 ${areaRange} ${purpose}를 사려고 할때, <br>매년 연봉 ${template.formatKoreanCurrency(income)}으로 한달에 ${template.formatKoreanCurrency(annualExpenses)}씩 쓸때</h1><h2>단 한번도 안짤리고 연속으로 ${years}년 만큼 일해도 살수있는 ${purpose}(이)가 없습니다.</h2></div>'`}
     </div>
     `;
 
     const js = `
     <script src="../js/5.js"></script>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function(event) {
+            // 수입, 지출, 순수익 계산 및 초기 설정
+            let currentIncome = ${income}; // 현재 수입
+            let expense = ${realannualExpenses}; // 월 지출을 연간 지출로 변환
+            let netIncome = currentIncome - expense; // 순수익
+            let target = ${totalSavings}; // 목표 가격
+
+            // 반복 횟수 설정
+            const repeatCount = ${years}; // 필요한 연도 계산 결과 사용
+            var xValues = [];
+            var yValues = [];
+            var textValues = [];
+            var measures = [];
+
+        // 반복해서 데이터 생성
+            for (let i = 0; i < repeatCount; i++) {
+                xValues.push(\`수입 \${i+1}\`);
+                yValues.push(currentIncome);
+                textValues.push(currentIncome.toFixed(0) + "만원");
+                measures.push("relative");
+
+                xValues.push(\`지출 \${i+1}\`);
+                yValues.push(-expense);
+                textValues.push((-expense).toFixed(0) + "만원");
+                measures.push("relative");
+
+                xValues.push(\`\${i+1}년\`);
+                yValues.push(currentIncome-expense);
+                textValues.push((currentIncome-expense).toFixed(0) + "만원");
+                measures.push("total");
+
+                // 수입과 지출에 상승률 적용
+                currentIncome *= 1.037; // 수입 상승률 적용
+                expense *= 1.024; // 지출 상승률 적용
+            }
+
+            var data = [{
+                name: "수입+지출+순수익",
+                type: "waterfall",
+                orientation: "v",
+                measure: measures,
+                x: xValues,
+                textposition: "outside",
+                text: textValues,
+                y: yValues,
+                hovertemplate: '%{y:,.0f}만원<extra></extra>',
+                connector: {
+                    line: {
+                        color: "rgb(63, 63, 63)"
+                    }
+                },
+            }];
+
+            var layout = {
+                title: {
+                    text: "구매까지 ${years}년 반복  " // 차트 제목
+                },
+                xaxis: {
+                    type: "category" // x축 타입
+                },
+                yaxis: {
+                    title: '평균 거래 가격(만원)',
+                    type: "linear", // y축 타입
+                    range: [0,target+10000], // y축 범위 조정
+                    tickformat: ',', // 천 단위마다 쉼표 추가
+                    hoverformat: ',' // hover 시 천 단위마다 쉼표 추가
+                },
+                autosize: true, // 차트 크기 자동 조정
+                showlegend: true // 범례 표시 여부
+            };
+
+            Plotly.newPlot('plotly-chart2', data, layout); // 차트 생성
+        });
+    </script>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function(event) {
+            // MongoDB에서 받아온 데이터를 const js에 저장
+            const js = ${JSON.stringify(affordableBuildings)};
+
+            // x축 (건물 번호)와 y축 (물건금액)을 위한 데이터 생성
+            const xValues = js.map((_, index) => index + 1);
+            const yValues = js.map(building => building["물건금액(만원)"]);
+            const textValues = js.map(building => building["건물명"]);
+
+            var data = [{
+                x: xValues,
+                y: yValues,
+                mode: 'markers',
+                type: 'scatter',
+                marker: {
+                    size: 10,
+                    color: 'rgba(156, 165, 196, 0.95)',
+                    line: {
+                        width: 1,
+                        color: 'rgb(0, 0, 0)'
+                    }
+                },
+                hovertemplate: '건물 번호: %{x}<br>가격: %{y}만원<br>건물명: %{text}<extra></extra>',
+                text: textValues // 건물명 추가
+            }];
+
+            var layout = {
+                title: {
+                    text: '총 저축액으로 구매 가능한 건물들'
+                },
+                xaxis: {
+                    title: '건물 번호',
+                    tickformat: 'd'
+                },
+                yaxis: {
+                    title: '가격 (만원)',
+                    tickformat: ','
+                },
+                autosize: true
+            };
+
+            Plotly.newPlot('plotly-chart', data, layout); // 차트 생성
+        });
+    </script>
+
     `;
     closeConnection(client);
     res.send(template.make_page(css, search, contents, js));
