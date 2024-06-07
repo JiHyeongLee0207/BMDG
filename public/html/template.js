@@ -34,7 +34,8 @@ module.exports = {
                                 </div>
                                 <div class="menu-item">월별 정보
                                     <div class="submenu">
-                                        <div><a href="/3/1" onclick="showLoadingScreen();">월별 계약량</a></div>
+                                        <div><a href="/3/1" onclick="showLoadingScreen();">연도별 월별 계약량</a></div>
+                                        <div><a href="/3/2" onclick="showLoadingScreen();">통합 월별 계약량</a></div>
                                     </div>
                                 </div>
                                 <div class="menu-item">자치구,동별 정보
