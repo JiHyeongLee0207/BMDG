@@ -368,14 +368,14 @@ router.get('/2', async (req, res, next) => {
         <div class="checkbox">
             <div class="checkbox-inner">
                 <div>
-                    <input class="dropbtn dropbtn2" type="number" name="income" placeholder="연간 수익 (만원)(세후)">
+                    <input class="dropbtn dropbtn2" type="number" name="income" placeholder="세후 연봉 (만원)">
                 </div>
                 <div>
                     <input type="checkbox" name="rateIncrease" checked>
                     <p>수익률 상승률 고려<p>
                 </div>
                 <div>
-                    <input class="dropbtn dropbtn2" type="number" name="annualExpenses" placeholder="연간 지출 (만원)">
+                    <input class="dropbtn dropbtn2" type="number" name="annualExpenses" placeholder="한달 지출 (만원)">
                 </div>
                 <div>
                     <input type="checkbox" name="considerExpenses" checked>
@@ -399,6 +399,7 @@ router.get('/2', async (req, res, next) => {
     </form>
     `;
 
+    // 받아온 파라미터들을 콘솔에 출력
     console.log("받아온 파라미터들: ",
         gu,
         purpose,
@@ -411,11 +412,13 @@ router.get('/2', async (req, res, next) => {
         years
     );
 
+    // 연도, 수입, 연간 지출, 목표 저축 연도를 정수로 변환
     year = parseInt(year);
     income = parseInt(income);
     annualExpenses = parseInt(annualExpenses);
     years = parseInt(years);
 
+    // MongoDB 쿼리를 위한 matchStage 객체 초기화
     const matchStage = {
         $match: {
             연도: year,
@@ -424,6 +427,7 @@ router.get('/2', async (req, res, next) => {
         }
     };
 
+    // 건물면적에 따라 matchStage 객체에 조건 추가
     switch(areaRange) {
         case '20평 이하':
             matchStage.$match['건물면적(㎡)'] = { $lte: 66 };
@@ -441,45 +445,53 @@ router.get('/2', async (req, res, next) => {
             break;
     }
 
+    // 목표 저축 연도 동안의 총 저축액 계산
     let totalSavings = 0;
     let currentIncome = income;
+    let expense = 12*annualExpenses; //지출
 
     for (let i = 0; i < years; i++) {
         totalSavings += currentIncome;
-        if (considerExpenses) totalSavings -= annualExpenses;
-        if (rateIncrease) currentIncome *= 1.03;
+        totalSavings -= expense;
+        if (rateIncrease) currentIncome *= 1.037; // 수입 상승률 적용 (3.7% 상승)
+        if (considerExpenses) expense *= 1.024; // 지출 상승률 적용 (2.4% 상승)
     }
 
-
+    // 총 저축액으로 구매 가능한 건물들을 조회
     const affordableBuildings = await collection.aggregate([
         matchStage,
         {
             $match: {
-                "물건금액(만원)": { $lte: totalSavings }
+                "물건금액(만원)": { $lte: totalSavings } // 총 저축액 이내의 건물 조회
             }
         },
         {
-            $sort: { "물건금액(만원)": -1 }
+            $sort: { "물건금액(만원)": -1 } // 물건금액(만원)을 기준으로 내림차순 정렬
+        },
+        {
+            $limit: 50 // 결과를 상위 50개 건물로 제한
         }
     ]).toArray();
 
+    // 구매 가능한 건물들의 정보를 HTML 표로 만듦
     let affordableContents = '';
     affordableBuildings.forEach(building => {
         affordableContents += `
             <tr>
                 <td>${building.건물명}</td>
                 <td>${template.formatKoreanCurrency(building["물건금액(만원)"].toFixed(0))}</td>
-            </tr>
-
-            
-        `;
+            </tr>`;
     });
-    console.log("생성한  affordableContents: ",affordableContents);
 
-    const contents = affordableBuildings.length > 0 ? `
+    // 결과를 HTML 형식으로 포맷하여 생성
+    const contents = `
+    <div>
+    ${affordableBuildings.length > 0 ? `
         <div>
-            <h2>${years}년 내에 구매 가능한 건물 목록</h2>
-            <table>
+            <h1>${year}년 기준 ${gu}에서 ${areaRange} ${purpose}를 사려고 한다 
+            <br>매년 연봉 ${template.formatKoreanCurrency(income)}으로 한달에 ${template.formatKoreanCurrency(annualExpenses)}씩 쓸때</h1>
+            <h2>단 한번도 안짤리고 연속으로 ${years}년 만큼 일하면 살수있는 ${purpose}와 가격</h2>
+            <table>    
                 <thead>
                     <tr>
                         <th>건물명</th>
@@ -491,7 +503,9 @@ router.get('/2', async (req, res, next) => {
                 </tbody>
             </table>
         </div>
-    ` : '<div><p>결과가 없습니다.</p></div>';
+    ` : `'<div><h1> ${year}년 기준 ${gu}에서 ${areaRange} ${purpose}를 사려고 할때, <br>매년 연봉 ${template.formatKoreanCurrency(income)}으로 한달에 ${template.formatKoreanCurrency(annualExpenses)}씩 쓸때</h1><h2>단 한번도 안짤리고 연속으로 ${years}년 만큼 일해도 살수있는 ${purpose}(이)가 없습니다.</h2></div>'`}
+    </div>
+    `;
 
     const js = `
     <script src="../js/5.js"></script>
