@@ -28,27 +28,27 @@ module.exports = {
                                 </div>
                                 <div class="menu-item">용도별 정보
                                     <div class="submenu">
-                                        <div><a href="/2/1" onclick="showLoadingScreen();">연별 평균가격</a></div>
-                                        <div><a href="/2/2" onclick="showLoadingScreen();">연별 거래량 수</a></div>
+                                        <div><a href="/2/1" onclick="showLoadingScreen();">용도별 평균가격</a></div>
+                                        <div><a href="/2/2" onclick="showLoadingScreen();">용도별 거래량</a></div>
                                     </div>
                                 </div>
                                 <div class="menu-item">월별 정보
                                     <div class="submenu">
-                                        <div><a href="/3/1" onclick="showLoadingScreen();">연도별 월별 계약량</a></div>
+                                        <div><a href="/3/1" onclick="showLoadingScreen();">월별 계약량</a></div>
                                     </div>
                                 </div>
                                 <div class="menu-item">자치구,동별 정보
                                     <div class="submenu">
-                                        <div><a href="/4/1" onclick="showLoadingScreen();">최다 거래량 자치구</a></div>
-                                        <div><a href="/4/2" onclick="showLoadingScreen();">최대 평균가격 자치구</a></div>
-                                        <div><a href="/4/3" onclick="showLoadingScreen();">최다 거래량 동</a></div>
-                                        <div><a href="/4/4" onclick="showLoadingScreen();">최대 평균가격 동</a></div>
+                                        <div><a href="/4/1" onclick="showLoadingScreen();">자치구별 거래량</a></div>
+                                        <div><a href="/4/2" onclick="showLoadingScreen();">자치구별 평균 가격</a></div>
+                                        <div><a href="/4/3" onclick="showLoadingScreen();">동별 거래량</a></div>
+                                        <div><a href="/4/4" onclick="showLoadingScreen();">동별 평균 가격</a></div>
                                     </div>
                                 </div>
                                 <div class="menu-item">집사는 시기 알아보기
                                     <div class="submenu">
-                                        <div><a href="/5/1" onclick="showLoadingScreen();">이돈으로 몇년?(평균,최고)</a></div>
-                                        <div><a href="/5/2" onclick="showLoadingScreen();">이돈으로 뭘?</a></div>
+                                        <div><a href="/5/1" onclick="showLoadingScreen();">이돈으로 뭘?</a></div>
+                                        <div><a href="/5/2" onclick="showLoadingScreen();">이돈으로 몇년?</a></div>
                                     </div>
                                 </div>
                             </div>

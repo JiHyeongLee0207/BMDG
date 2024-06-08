@@ -46,7 +46,14 @@ router.get('/1', async (req, res, next) => {
     <script src="../js/13.js"></script>
     `;
     
-    var contents = ``;
+    var contents = `
+    <div>
+        <h1>가장 비싼/저렴한 건물</h1>
+        <br>
+        <p>해당 페이지는 서울시에서 가장 비싼 건물과 저렴한 건물 5개를 보여주는 페이지입니다.</p>
+        <p>위의 박스에서 연도를 골라주세요.</p>
+    </div>
+    `;
 
     if(year){
         //1.연도를 입력받아 서울시에서 거래된 가장 비싼 건물의 정보 추출:
@@ -92,6 +99,12 @@ router.get('/1', async (req, res, next) => {
 
         // 결과를 HTML로 구성
         contents = (data1.length > 0 || data2.length > 0) ? `
+        <div>
+            <h1>가장 비싼/저렴한 건물</h1>
+            <br>
+            <p>${year}년도 서울시에서 가장 비싼 건물과 저렴한 건물 5개입니다.</p>
+        </div>
+
         <div id="plotly-chart"></div>
         
 
@@ -228,7 +241,14 @@ router.get('/2',async (req, res, next) => {
     var js =`
     <script src="../js/13.js"></script>
     `;
-    var contents = ``;
+    var contents = `
+    <div>
+        <h1>면적 대비 가장 비싼/저렴한 건물</h1>
+        <br>
+        <p>해당 페이지는 서울시에서 면적 대비 가장 비싼 건물과 저렴한 건물 10개를 보여주는 페이지입니다.</p>
+        <p>위의 박스에서 연도를 골라주세요.</p>
+    </div>
+    `;
 
     if(year){
         // 연도를 입력받아 면적대비 가격이 비싼 건물 3개의 정보 추출
@@ -285,6 +305,11 @@ router.get('/2',async (req, res, next) => {
 
     // 결과를 HTML로 구성
     contents = (expensiveBuildings.length > 0 || cheapBuildings.length > 0) ? `
+    <div>
+        <h1>면적 대비 가장 비싼/저렴한 건물</h1>
+        <br>
+        <p>${year}년도 서울시에서 면적 대비 가장 비싼 건물과 저렴한 건물 10개입니다.</p>
+     </div>
     <div id="plotly-chart"></div>
     
     <div>

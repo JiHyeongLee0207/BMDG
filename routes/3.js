@@ -50,7 +50,14 @@ router.get('/1', async (req, res, next) => {
     <script src="../js/13.js"></script>
     `;
     
-    var contents = ``;
+    var contents = `
+    <div>
+        <h1>월별 계약량</h1>
+        <br>
+        <p>해당 페이지는 서울시 월별 부동산 거래량을 보여주는 페이지입니다.</p>
+        <p>위의 박스에서 연도를 골라주세요.</p>
+    </div>
+    `;
 
     if(year){
         //7.월별 계약량
@@ -75,6 +82,12 @@ router.get('/1', async (req, res, next) => {
 
         // 결과가 있는지 확인 후 출력
         contents = (data1.length > 0) ? `
+        <div>
+            <h1>월별 계약량</h1>
+            <br>
+            <p>서울시 ${year}년도 월별 부동산 거래량을 보여주는 페이지입니다.</p>
+        </div>
+
             <div id="plotly-chart"></div>
             <div>
                 <h2>연도별 월별 거래량</h2>

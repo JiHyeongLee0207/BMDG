@@ -69,7 +69,12 @@ const {
     year2 = parseInt(year2);
 
     var contents = `
-    
+    <div>
+        <h1>용도별 평균 가격</h1>
+        <br>
+        <p>해당 페이지는 서울시 건물을 아파트, 오피스텔, 연립다세대, 단독다가구로 분류하여 연도마다의 평균 가격을 보여주는 페이지입니다.</p>
+        <p>위의 박스에서 연도 범위를 골라주세요.</p>
+    </div>
     `;
     var js = `
         <script src="../js/2.js"></script>
@@ -99,6 +104,12 @@ const {
 
         // 결과가 있는지 확인 후 출력
         contents = (data.length > 0) ? `
+        <div>
+            <h1>용도별 평균 가격</h1>
+            <br>
+            <p>${year1}년도부터 ${year2}년도까지 서울시 건물을 아파트, 오피스텔, 연립다세대, 단독다가구의 평균 가격 흐름입니다.</p>
+        </div>
+
             <div id="plotly-chart"></div>
             <div>
                 <h2>용도별 연간 평균 거래 가격</h2>
@@ -222,7 +233,12 @@ router.get('/2', async (req, res, next) => {
     year2 = parseInt(year2);
 
     var contents = `
-    
+    <div>
+        <h1>용도별 거래량</h1>
+        <br>
+        <p>해당 페이지는 서울시 건물을 아파트, 오피스텔, 연립다세대, 단독다가구로 분류하여 연도마다의 거래량을 보여주는 페이지입니다.</p>
+        <p>위의 박스에서 연도 범위를 골라주세요.</p>
+    </div>
     `;
     var js = `
         <script src="../js/2.js"></script>
@@ -248,6 +264,12 @@ router.get('/2', async (req, res, next) => {
     
         // 결과가 있는지 확인 후 출력
         contents = (data1.length > 0) ? `
+        <div>
+            <h1>용도별 거래량</h1>
+            <br>
+            <p>${year1}년도부터 ${year2}년도까지 서울시 건물을 아파트, 오피스텔, 연립다세대, 단독다가구의 거래량 흐름입니다.</p>
+        </div>
+
         <div id="plotly-chart"></div>
         <div>
         <h2>용도별 연간 평균 거래량</h2>

@@ -48,7 +48,14 @@ router.get('/1', async (req, res, next) => {
         <input type="hidden" name="year" id="year">
     </form>
     `;
-    var contents = ``;
+    var contents = `
+    <div>
+        <h1>자치구별 거래량</h1>
+        <br>
+        <p>해당 페이지는 서울시 자치구별 부동산 거래량을 보여주는 페이지입니다.</p>
+        <p>위의 박스에서 용도와 연도를 골라주세요.</p>
+    </div>
+    `;
     const js = `<script src="../js/4.js"></script>`;
 
     if (year && purpose) {
@@ -59,7 +66,25 @@ router.get('/1', async (req, res, next) => {
             }
             contents = `
             <div>
+                <h1>자치구별 거래량</h1>
+                <br>
+                <p>${year}년도 서울시 자치구별 ${purpose} 거래량입니다.</p>
+            </div>
+            <div>
                 ${data}
+                <p>&nbsp</p>
+                <p>&nbsp</p>
+                <p>&nbsp</p>
+                <p>&nbsp</p>
+                <p>&nbsp</p>
+                <p>&nbsp</p>
+                <p>&nbsp</p>
+                <p>&nbsp</p>
+                <p>&nbsp</p>
+                <p>&nbsp</p>
+                <p>&nbsp</p>
+                <p>&nbsp</p>
+                <p>&nbsp</p>
             </div>
             `
             res.send(template.make_page(css, search, contents, js));
@@ -105,7 +130,14 @@ router.get('/2', async (req, res, next) => {
         <input type="hidden" name="year" id="year">
     </form>
     `;
-    var contents = ``;
+    var contents = `
+    <div>
+        <h1>자치구별 평균 가격</h1>
+        <br>
+        <p>해당 페이지는 서울시 자치구별 부동산 평균 가격을 보여주는 페이지입니다.</p>
+        <p>위의 박스에서 용도와 연도를 골라주세요.</p>
+    </div>
+    `;
     const js = `<script src="../js/4.js"></script>`;
 
     if (year && purpose) {
@@ -115,7 +147,27 @@ router.get('/2', async (req, res, next) => {
                 return;
             }
             contents = `
-            ${data}
+            <div>
+                <h1>자치구별 평균 가격</h1>
+                <br>
+                <p>${year}년도 서울시 자치구별 ${purpose} 평균 가격입니다.</p>
+            </div>
+            <div>
+                ${data}
+                <p>&nbsp</p>
+                <p>&nbsp</p>
+                <p>&nbsp</p>
+                <p>&nbsp</p>
+                <p>&nbsp</p>
+                <p>&nbsp</p>
+                <p>&nbsp</p>
+                <p>&nbsp</p>
+                <p>&nbsp</p>
+                <p>&nbsp</p>
+                <p>&nbsp</p>
+                <p>&nbsp</p>
+                <p>&nbsp</p>
+            </div>
             `
             res.send(template.make_page(css, search, contents, js));
         });
@@ -191,7 +243,14 @@ router.get('/3', async (req, res, next) => {
     <script src="../js/4.js"></script>
     `;
     
-    var contents = ``;
+    var contents = `
+    <div>
+        <h1>동별 거래량</h1>
+        <br>
+        <p>해당 페이지는 서울시 특정 구의 동별 부동산 거래량을 보여주는 페이지입니다.</p>
+        <p>위의 박스에서 구와 용도, 그리고 연도를 골라주세요.</p>
+    </div>
+    `;
 
     if(gu && purpose && year){
         //10. 거래가 가장 많이 발생하는 법정동 25개 역순 정렬
@@ -205,6 +264,12 @@ router.get('/3', async (req, res, next) => {
 
 
         contents = (data1.length > 0) ? `
+        <div>
+            <h1>동별 거래량</h1>
+            <br>
+            <p>${year}년도 서울시 ${gu}구의 동별 ${purpose} 거래량입니다.</p>
+        </div>
+        
         <div id="plotly-chart"></div>
         <div>
         <h2> ${gu}에서 거래가 가장 많이 발생하는 법정동 목록</h2>
@@ -327,7 +392,14 @@ router.get('/4', async (req, res, next) => {
     <script src="../js/4.js"></script>
     `;
     
-    var contents = ``;
+    var contents = `
+    <div>
+        <h1>동별 평균 가격</h1>
+        <br>
+        <p>해당 페이지는 서울시 특정 구의 동별 부동산 평균 가격을 보여주는 페이지입니다.</p>
+        <p>위의 박스에서 구와 용도, 그리고 연도를 골라주세요.</p>
+    </div>
+    `;
 
     if(gu && purpose && year){
         //11.법정동별 가격평균값 역순 정렬
@@ -345,6 +417,12 @@ router.get('/4', async (req, res, next) => {
 
         // 결과가 있는지 확인 후 출력
         contents = (data1.length > 0) ? `
+        <div>
+            <h1>동별 평균 가격</h1>
+            <br>
+            <p>${year}년도 서울시 ${gu}구의 동별 ${purpose} 평균 가격입니다.</p>
+        </div>
+
         <div id="plotly-chart"></div>
         <div>
         <h2> ${gu}에서의 동별 평균가 목록</h2>
