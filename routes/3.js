@@ -81,33 +81,14 @@ router.get('/1', async (req, res, next) => {
 
 
         // 결과가 있는지 확인 후 출력
-        contents = (data1.length > 0) ? `
+        contents = `
         <div>
             <h1>월별 계약량</h1>
             <br>
             <p>서울시 ${year}년도 월별 부동산 거래량을 보여주는 페이지입니다.</p>
         </div>
 
-            <div id="plotly-chart"></div>
-            <div>
-                <h2>연도별 월별 거래량</h2>
-                <table>
-                <thead>
-                    <tr>
-                        <th>월</th>
-                        <th>계약량</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    ${data1.map(monthData => `
-                            <tr>
-                                <td>${monthData._id}월</td>
-                                <td>${monthData.계약수}건</td>
-                            </tr>
-                        `).join('')}
-                    </tbody>
-                </table>
-            </div>` : '<div><p>결과가 없습니다.</p></div>';
+        <div id="plotly-chart"></div>`;
 
         console.log(contents);
 
@@ -116,31 +97,82 @@ router.get('/1', async (req, res, next) => {
         <script src="../js/13.js"></script>
         <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
         <script>
-        document.addEventListener('DOMContentLoaded', function() {
-                const total = ${data1.reduce((acc, cur) => acc + cur.계약수, 0)}; // 총 거래량 계산
-
-                const data = {
-                    labels: ${JSON.stringify(data1.map(monthData => monthData._id + '월'))},
-                    values: ${JSON.stringify(data1.map(monthData => monthData.계약수))},
-                    type: 'pie',
+            document.addEventListener('DOMContentLoaded', function() {
+                const labels = ${JSON.stringify(data1.map(monthData => monthData._id + '월'))};
+                const values = ${JSON.stringify(data1.map(monthData => monthData.계약수))};
+                
+                // 바 차트 데이터
+                const barData = {
+                    x: labels,
+                    y: values,
+                    type: 'bar',
                     name: '월별 계약량',
-                    hovertemplate: '%{label}: %{value}회 (%{percent})', // 백분율 추가
-                    textinfo: 'label+percent', // 라벨과 백분율 함께 표시 설정
-                    textposition: 'inside', // 텍스트 위치 설정
                     marker: {
-                        colors: ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd', '#8c564b', '#e377c2', '#7f7f7f', '#bcbd22', '#17becf', '#aec7e8', '#ffbb78'], // 각 월에 대한 색상 지정
+                        color: [
+                            '#1f77b4', // 진한 파랑
+                            '#2ca02c', // 초록
+                            '#17becf', // 하늘색
+                            '#aec7e8', // 연한 파랑
+                            '#7fcdbb', // 연한 청록
+                            '#ff7f0e', // 주황
+                            '#9467bd', // 보라
+                            '#8c564b', // 갈색
+                            '#d62728', // 빨강
+                            '#ff9896', // 연한 빨강
+                            '#c5b0d5', // 연한 보라
+                            '#8c564b'  // 갈색
+                        ],
                     },
+                    hovertemplate: '%{x}: %{y}회',
                 };
+
+                // 추세선 데이터
+                const trendData = {
+                    x: labels,
+                    y: values,
+                    type: 'scatter',
+                    mode: 'lines+markers',
+                    name: '추세선',
+                    line: {
+                        color: '#ff7f0e',
+                        width: 2,
+                    },
+                    marker: {
+                        size: 8,
+                    },
+                    hoverinfo: 'none',
+                };
+
+                const data = [barData, trendData];
 
                 const layout = {
-                    title: '${year}년 월별 계약량',
-                    height: 800, // 그래프의 높이 조정
-                    width: 800, // 그래프의 너비 조정
+                    title: {
+                        text: '${year}년 월별 계약량 및 추세선',
+                        font: {
+                            size: 22,
+                            color: 'black',
+                            family: 'Arial, Helvetica, sans-serif', // 둥글한 글씨체 설정
+                            weight: 'bold'
+                        }
+                    },
+                    height: 600,
+                    width: 1000,
+                    xaxis: {
+                        title: '월',
+                    },
+                    yaxis: {
+                        title: '계약량(회)',
+                    },
+                    bargap: 0.4, // 막대 간격 조정
                 };
 
-                Plotly.newPlot('plotly-chart', [data], layout);
+                Plotly.newPlot('plotly-chart', data, layout);
+                document.getElementById('plotly-chart').style.display = 'flex';
+                document.getElementById('plotly-chart').style.justifyContent = 'center';
+                document.getElementById('plotly-chart').style.alignItems = 'center';
             });
         </script>
+
         `;
     }
 

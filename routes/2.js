@@ -103,35 +103,15 @@ const {
         console.log("받아온 쿼리 파라미터data: ", data);
 
         // 결과가 있는지 확인 후 출력
-        contents = (data.length > 0) ? `
+        contents = 
+        `
         <div>
             <h1>용도별 평균 가격</h1>
             <br>
             <p>${year1}년도부터 ${year2}년도까지 서울시 건물을 아파트, 오피스텔, 연립다세대, 단독다가구의 평균 가격 흐름입니다.</p>
         </div>
 
-            <div id="plotly-chart"></div>
-            <div>
-                <h2>용도별 연간 평균 거래 가격</h2>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>연도</th>
-                            <th>건물 용도</th>
-                            <th>평균 거래 가격</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        ${data.map(entry => `
-                            <tr>
-                                <td>${entry._id.연도}</td>
-                                <td>${entry._id.건물용도}</td>
-                                <td>${template.formatKoreanCurrency(entry.평균거래가격.toFixed(0))}</td>
-                            </tr>
-                        `).join('')}
-                    </tbody>
-                </table>
-            </div>` : '<div><p>결과가 없습니다.</p></div>';
+            <div id="plotly-chart"></div>`;
 
         js = `
         <script src="../js/2.js"></script>
@@ -155,7 +135,15 @@ const {
                 });
 
                 const layout = {
-                    title: '용도별 연간 평균 거래 가격',
+                    title: {
+                        text: '용도별 평균 가격정보',
+                        font: {
+                            size: 22,
+                            color: 'black',
+                            family: 'Arial, Helvetica, sans-serif', // 둥글한 글씨체 설정
+                            weight: 'bold'
+                        }
+                    },
                     xaxis: {
                         title: '연도'
                     },
@@ -263,7 +251,7 @@ router.get('/2', async (req, res, next) => {
         console.log("받아온 쿼리 파라미터: ",data1);
     
         // 결과가 있는지 확인 후 출력
-        contents = (data1.length > 0) ? `
+        contents = `
         <div>
             <h1>용도별 거래량</h1>
             <br>
@@ -271,27 +259,8 @@ router.get('/2', async (req, res, next) => {
         </div>
 
         <div id="plotly-chart"></div>
-        <div>
-        <h2>용도별 연간 평균 거래량</h2>
-        <table>
-            <thead>
-                <tr>
-                    <th>연도</th>
-                    <th>건물 용도</th>
-                    <th>거래량</th>
-                </tr>
-            </thead>
-            <tbody>
-                ${data1.map(entry => `
-                    <tr>
-                        <td>${entry._id.연도}</td>
-                        <td>${entry._id.건물용도}</td>
-                        <td>${entry.거래량}</td>
-                    </tr>
-                `).join('')}
-            </tbody>
-        </table>
-        </div>` : '<div><p>결과가 없습니다.</p></div>';
+        
+        `;
     
         js = `
         <script src="../js/2.js"></script>
@@ -315,7 +284,15 @@ router.get('/2', async (req, res, next) => {
             });
     
             const layout = {
-                title: '용도별 연간 평균 거래량',
+                title: {
+                        text: '용도별 연간 평균 거래량',
+                        font: {
+                            size: 22,
+                            color: 'black',
+                            family: 'Arial, Helvetica, sans-serif', // 둥글한 글씨체 설정
+                            weight: 'bold'
+                        }
+                    },
                 xaxis: {
                     title: '연도'
                 },
