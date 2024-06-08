@@ -466,6 +466,10 @@ router.get('/1', async (req, res, next) => {
                 };
 
                 Plotly.newPlot('plotly-chart', data, layout); // 차트 생성
+
+                            document.getElementById('plotly-chart').style.display = 'flex';
+            document.getElementById('plotly-chart').style.justifyContent = 'center';
+            document.getElementById('plotly-chart').style.alignItems = 'center';
             });
         </script>
     `;
@@ -944,6 +948,9 @@ router.get('/2', async (req, res, next) => {
             };
     
             Plotly.newPlot('plotly-chart2', data, layout); // 차트 생성
+                        document.getElementById('plotly-chart').style.display = 'flex';
+            document.getElementById('plotly-chart').style.justifyContent = 'center';
+            document.getElementById('plotly-chart').style.alignItems = 'center';
         });
         </script>
         `;
