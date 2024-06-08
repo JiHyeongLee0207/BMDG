@@ -42,7 +42,7 @@ module.exports = {
                                         <div><a href="/4/1" onclick="showLoadingScreen();">자치구별 거래량</a></div>
                                         <div><a href="/4/2" onclick="showLoadingScreen();">자치구별 평균 가격</a></div>
                                         <div><a href="/4/3" onclick="showLoadingScreen();">동별 거래량</a></div>
-                                        <div><a href="/4/4" onclick="showLoadingScreen();">동별 평균 가격</a></div>
+                                        <div><a href="/4/4" onclick="showLoadingScreen();">동별 평균 가격 및 거래량</a></div>
                                     </div>
                                 </div>
                                 <div class="menu-item">집사는 시기 알아보기
