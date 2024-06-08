@@ -106,7 +106,7 @@ router.get('/1', async (req, res, next) => {
                     x: labels,
                     y: values,
                     type: 'bar',
-                    name: '월별 계약량',
+                    name: '',
                     marker: {
                         color: [
                             '#1f77b4', // 진한 파랑
@@ -162,6 +162,7 @@ router.get('/1', async (req, res, next) => {
                     },
                     yaxis: {
                         title: '계약량(회)',
+                        tickformat: ',',
                     },
                     bargap: 0.4, // 막대 간격 조정
                 };
