@@ -64,17 +64,15 @@ router.get('/1', async (req, res, next) => {
         const data1 = await collection.aggregate([
             { $match: {연도: year } },
             { $project: {
-                월: { $substrBytes: ["$계약일", 4, 2] }, // '계약일' 필드에서 5번째 위치부터 2자리(월)를 추출
-                계약일: 1 }// 계약일 필드를 유지
-            },
+                월: { $substrBytes: ["$계약일", 4, 2] },
+                계약일: 1 }},
             { $group: {
-                _id: "$월", // 월별로 그룹화
+                _id: "$월", 
                 계약수: { $sum: 1 }
-                } // 그룹에 포함된 문서의 수를 센다
-            },
-            {$sort: { _id: 1 } // 월별로 정렬
-            }
-        ]).toArray(); // 결과를 배열로 변환
+            }},
+            {$sort: { _id: 1 } }
+        ])
+        .toArray(); // 결과를 배열로 변환
 
         console.log("받아온 쿼리 파라미터: ",data1);
 
@@ -155,8 +153,7 @@ router.get('/1', async (req, res, next) => {
                             weight: 'bold'
                         }
                     },
-                    height: 600,
-                    width: 1000,
+                    
                     xaxis: {
                         title: '월',
                     },
@@ -165,6 +162,7 @@ router.get('/1', async (req, res, next) => {
                         tickformat: ',',
                     },
                     bargap: 0.4, // 막대 간격 조정
+                    showlegend: false,
                 };
 
                 Plotly.newPlot('plotly-chart', data, layout);
