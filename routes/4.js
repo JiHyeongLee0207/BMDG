@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const { spawn } = require('child_process');
 const bodyParser = require('body-parser');
 const fs = require('fs');
 var template = require('../public/html/template.js');
@@ -16,20 +17,12 @@ const {
 router.get('/1', async (req, res, next) => {
     const MONGO_URI = process.env.MONGO_URI;
     const client = new MongoClient(MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true });
-    const db = await connectDB(client);
-    const collection = await connectBMDG(db);
-    let purpose = req.query.purpose;
-    let year = req.query.year;
+    await client.connect();
+    const db = client.db("BMDG");
+    const collection = db.collection("budongsan");
+    var { year, purpose } = req.query;
 
-    if (!Number.isInteger(parseInt(year))) {
-        year = parseInt(year);
-        console.log("Converted year to Number:", year);
-    }
-    console.log("받아온 쿼리 파라미터: ",purpose,year);
-
-    const css = `
-    <link rel="stylesheet" href="../css/submitbtn.css">
-    `;
+    const css = `<link rel="stylesheet" href="../css/submitbtn.css">`;
     const search = `
     <form id="yearForm" method="get">
         <div class="dropdown">
@@ -55,93 +48,36 @@ router.get('/1', async (req, res, next) => {
         <input type="hidden" name="year" id="year">
     </form>
     `;
+    var contents = ``;
+    const js = `<script src="../js/4.js"></script>`;
 
-    year = parseInt(year);
-
-  //8.거래가 가장 많이 발생하는 자치구 25개 역순 정렬
-    const data1 = await collection.aggregate([
-        { $match: { 연도: year, 건물용도: purpose } },
-        { $group: { _id: "$자치구명", 거래량: { $sum: 1 } } },
-        { $sort: { 거래량: -1 } },
-        { $limit: 25 }
-    ]).toArray(); // 결과를 배열로 변환
-    console.log("받아온 쿼리 파라미터: ",data1);
-
-
-    const contents = (data1.length > 0) ? `
-    <div id="plotly-chart"></div>
-    <div>
-        <h2>거래가 가장 많이 발생하는 자치구 25개</h2>
-        <table>
-            <thead>
-                <tr>
-                    <th>자치구명</th>
-                    <th>거래량</th>
-                </tr>
-            </thead>
-            <tbody>
-                ${data1.map(districtData => `
-                    <tr>
-                        <td>${districtData._id}</td>
-                        <td>${districtData.거래량}건</td>
-                    </tr>
-                `).join('')}
-            </tbody>
-        </table>
-    </div>` : '<div><p>결과가 없습니다.</p></div>';
-
-
-    const js = `
-        <script src="../js/4.js"></script>
-        <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
-        <script>
-        document.addEventListener('DOMContentLoaded', async function() {
-            const data = {
-                x: ${JSON.stringify(data1.map(districtData => districtData._id))}, // 자치구명
-                y: ${JSON.stringify(data1.map(districtData => districtData.거래량))}, // 거래량
-                type: 'bar', // 차트 유형: 바 차트
-                name: '',
-                hovertemplate: '%{y} 건',
-            };
-
-            const layout = {
-                title: '거래가 가장 많이 발생하는 자치구 25개',
-                xaxis: {
-                    title: '자치구명'
-                },
-                yaxis: {
-                    title: '거래량',
-                    tickformat: ','  // 천 단위 구분자를 사용
-                }
-            };
-
-            Plotly.newPlot('plotly-chart', [data], layout);
+    if (year && purpose) {
+        fs.readFile(`./public/cacheData/${year}_${purpose}.html`, 'utf8', (err, data) => {
+            if (err) {
+                console.error('파일을 읽는 중 오류가 발생했습니다:', err);
+                return;
+            }
+            contents = `
+            ${data}
+            `
+            res.send(template.make_page(css, search, contents, js));
         });
-        </script>`;
-
-    closeConnection(client);
-    res.send(template.make_page(css, search, contents, js));
-    });
-
+    }
+    else{
+        res.send(template.make_page(css, search, contents, js));
+    }
+});
 
 //최대 평균가격 자치구 정보--------------------------------------------------------------
 router.get('/2', async (req, res, next) => {
     const MONGO_URI = process.env.MONGO_URI;
     const client = new MongoClient(MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true });
-    const db = await connectDB(client);
-    const collection = await connectBMDG(db);
-    let purpose = req.query.purpose;
-    let year = req.query.year;
+    await client.connect();
+    const db = client.db("BMDG");
+    const collection = db.collection("budongsan");
+    var { year, purpose } = req.query;
 
-    if (!Number.isInteger(parseInt(year))) {
-        year = parseInt(year);
-        console.log("Converted year to Number:", year);
-    }
-    console.log("받아온 쿼리 파라미터: ",purpose,year);
-
-    const css = `
-    <link rel="stylesheet" href="../css/submitbtn.css">
-    `;
+    const css = `<link rel="stylesheet" href="../css/submitbtn.css">`;
     const search = `
     <form id="yearForm" method="get">
         <div class="dropdown">
@@ -167,79 +103,25 @@ router.get('/2', async (req, res, next) => {
         <input type="hidden" name="year" id="year">
     </form>
     `;
+    var contents = ``;
+    const js = `<script src="../js/4.js"></script>`;
 
-    year = parseInt(year);
-
-    //9.자치구별 가격평균값 역순 정렬
-    const data1 = await collection.aggregate([
-        { $match: { 연도: year, 건물용도: purpose } },
-        { $group: { _id: "$자치구명", 평균가격: { $avg: "$물건금액(만원)" } } },
-        { $sort: { 평균가격: -1 } }
-    ]).toArray(); // 결과를 배열로 변환
-
-    //int로 변환
-    data1.forEach(building => {
-        building.평균가격 = parseInt(building.평균가격);
-    });
-    
-    console.log("받아온 쿼리 파라미터: ",data1);
-
-
-    // 결과가 있는지 확인 후 출력
-    const contents = (data1.length > 0) ? `
-    <div id="plotly-chart"></div>
-    <div>
-    <h2>자치구별 가격평균값 역순 정렬</h2>
-    <table>
-        <thead>
-            <tr>
-                <th>자치구명</th>
-                <th>평균가격</th>
-            </tr>
-        </thead>
-        <tbody>
-            ${data1.map(districtData => `
-                <tr>
-                    <td>${districtData._id}</td>
-                    <td>${template.formatKoreanCurrency(districtData.평균가격.toFixed(0))}</td>
-                </tr>
-            `).join('')}
-        </tbody>
-    </table>
-    </div>` : '<div><p>결과가 없습니다.</p></div>';
-
-
-    const js = `
-        <script src="../js/4.js"></script>
-        <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
-        <script>
-        document.addEventListener('DOMContentLoaded', async function() {
-            const data = {
-                x: ${JSON.stringify(data1.map(districtData => districtData._id))}, // 자치구명
-                y: ${JSON.stringify(data1.map(districtData => districtData.평균가격))}, // 평균가격
-                type: 'bar', // 차트 유형: 바 차트
-                name: '',
-                hovertemplate: '%{y} 만원',
-            };
-
-            const layout = {
-                title: '자치구별 평균가격',
-                xaxis: {
-                    title: '자치구명'
-                },
-                yaxis: {
-                    title: '평균가격 (만원)',
-                    tickformat: ','  // 천 단위 구분자를 사용
-                }
-            };
-
-            Plotly.newPlot('plotly-chart', [data], layout);
+    if (year && purpose) {
+        fs.readFile(`./public/cacheData2/${year}_${purpose}.html`, 'utf8', (err, data) => {
+            if (err) {
+                console.error('파일을 읽는 중 오류가 발생했습니다:', err);
+                return;
+            }
+            contents = `
+            ${data}
+            `
+            res.send(template.make_page(css, search, contents, js));
         });
-        </script>`;
-
-    closeConnection(client);
-    res.send(template.make_page(css, search, contents, js));
-    });
+    }
+    else{
+        res.send(template.make_page(css, search, contents, js));
+    }
+});
 
 
 //자치구별 거래량 정보--------------------------------------------------------------

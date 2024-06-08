@@ -96,6 +96,33 @@ module.exports = {
             window.addEventListener('pageshow', function(event) {
                 hideLoadingScreen();
             });
+
+            document.getElementById('runScript').addEventListener('click', () => {
+                const year = document.getElementById('year').value;
+                const purpose = document.getElementById('purpose').value;
+
+                fetch('/run-python', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ year, purpose }),
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        console.log(data.message);
+                        // 성공했을 때의 로직을 여기에 추가
+                    } else {
+                        console.error(data.message);
+                        // 실패했을 때의 로직을 여기에 추가
+                    }
+                })
+                .catch((error) => {
+                    console.error('Error:', error);
+                });
+            });
+
             </script>
             ${js}
         </body>

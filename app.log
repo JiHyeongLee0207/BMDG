@@ -1,0 +1,13 @@
+root - INFO - MongoDB에 성공적으로 연결되었습니다.
+root - INFO - MongoDB에 성공적으로 연결되었습니다.
+root - INFO - 2022년도, 단독다가구용도에 대한 데이터 검색 성공.
+root - ERROR - 데이터 시각화 실패: [Errno 2] No such file or directory: './seoul.geojson'
+root - INFO - MongoDB에 성공적으로 연결되었습니다.
+root - INFO - 2019년도, 오피스텔용도에 대한 데이터 검색 성공.
+root - ERROR - 데이터 시각화 실패: [Errno 2] No such file or directory: './seoul.geojson'
+root - INFO - MongoDB에 성공적으로 연결되었습니다.
+root - INFO - 2020년도, 연립다세대용도에 대한 데이터 검색 성공.
+root - INFO - 시각화 파일 생성 성공: ../cacheData\2020_연립다세대.html
+root - INFO - MongoDB에 성공적으로 연결되었습니다.
+root - INFO - 2020년도, 연립다세대용도에 대한 데이터 검색 성공.
+root - INFO - 시각화 파일 생성 성공: ./public/cacheData\2020_연립다세대.html
