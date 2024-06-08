@@ -30,20 +30,41 @@ def visualize_data(data, year, purpose):
     avg_prices = df.groupby('자치구명')['물건금액(만원)'].mean().reset_index()
     avg_prices.columns = ['자치구명', '평균물건금액']
     
+    # 평균물건금액을 정수로 변환하여 소수점 제거
+    avg_prices['평균물건금액'] = avg_prices['평균물건금액'].astype(int)
+    
+    # 억 단위로 변환
+    avg_prices['평균물건금액억'] = avg_prices['평균물건금액'] / 10000
+    
+    # customdata를 추가하여 억 단위와 만 단위로 변환된 값을 포함
+    avg_prices['억단위'] = avg_prices['평균물건금액'] // 10000
+    avg_prices['만단위'] = avg_prices['평균물건금액'] % 10000
+    
     # GeoJSON 파일 로드
     with urlopen('https://raw.githubusercontent.com/southkorea/seoul-maps/master/kostat/2013/json/seoul_municipalities_geo_simple.json') as response:
         seoul_geo = json.load(response)
     
     # 시각화
-    fig = px.choropleth_mapbox(avg_prices, geojson=seoul_geo, locations='자치구명', color='평균물건금액',
+    fig = px.choropleth_mapbox(avg_prices, geojson=seoul_geo, locations='자치구명', color='평균물건금액억',
                                featureidkey="properties.name",
                                color_continuous_scale="Viridis",
                                mapbox_style="carto-positron",
-                               zoom=10, center = {"lat": 37.5651, "lon": 126.98955},
+                               zoom=10, center={"lat": 37.5651, "lon": 126.98955},
                                opacity=0.5,
-                               labels={'평균물건금액':'평균 물건 금액'}
+                               labels={'평균물건금액억': '평균 물건 금액 (억 원)'}
                               )
-    fig.update_layout(margin={"r":0,"t":0,"l":0,"b":0})
+    
+    # customdata를 설정하여 억 단위와 만 단위를 전달
+    fig.update_traces(customdata=avg_prices[['억단위', '만단위']],
+                      hovertemplate='<b>%{location}</b><br>평균 물건 금액: %{customdata[0]}억 %{customdata[1]}만원')
+    
+    # 색상 범위의 최소값을 데이터의 최저값으로 설정하고, colorbar의 tickformat을 설정하여 억 단위로 표시
+    min_value = avg_prices['평균물건금액억'].min()
+    fig.update_layout(coloraxis_colorbar=dict(tickformat=".1f"),
+                      coloraxis=dict(cmin=min_value))
+    
+    fig.update_layout(margin={"r": 0, "t": 0, "l": 0, "b": 0})
+    
     # 디렉토리 확인 및 생성
     output_dir = '../cacheData2'
     if not os.path.exists(output_dir):

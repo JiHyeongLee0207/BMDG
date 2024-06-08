@@ -163,7 +163,7 @@ router.get('/1', async (req, res, next) => {
     `;
     var js = `<script src="../js/5.js"></script>`;
 
-    if(gu && purpose && year && areaRange && rateIncrease && income && considerExpenses && annualExpenses){
+    if(gu && purpose && year && areaRange && income && annualExpenses){
         // MongoDB 쿼리를 위한 matchStage 객체 초기화
         const matchStage = {
             $match: {
@@ -648,7 +648,7 @@ router.get('/2', async (req, res, next) => {
     `;
     var js = `<script src="../js/5.js"></script>`;
 
-    if(gu && purpose && year && areaRange && rateIncrease && income && considerExpenses && annualExpenses){
+    if(gu && purpose && year && areaRange && income && annualExpenses){
         const matchStage = {
             $match: {
                 연도: year,
