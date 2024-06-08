@@ -146,7 +146,15 @@ router.get('/1', async (req, res, next) => {
                 const data = [barData, trendData];
 
                 const layout = {
-                    title: '${year}년 월별 계약량 및 추세선',
+                    title: {
+                        text: '${year}년 월별 계약량 및 추세선',
+                        font: {
+                            size: 22,
+                            color: 'black',
+                            family: 'Arial, Helvetica, sans-serif', // 둥글한 글씨체 설정
+                            weight: 'bold'
+                        }
+                    },
                     height: 600,
                     width: 1000,
                     xaxis: {

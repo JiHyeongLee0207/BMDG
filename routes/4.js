@@ -263,7 +263,7 @@ router.get('/3', async (req, res, next) => {
         console.log("받아온 쿼리 파라미터: ",data1);
 
 
-        contents = (data1.length > 0) ? `
+        contents = `
         <div>
             <h1>동별 거래량</h1>
             <br>
@@ -271,25 +271,7 @@ router.get('/3', async (req, res, next) => {
         </div>
         
         <div id="plotly-chart"></div>
-        <div>
-        <h2> ${gu}에서 거래가 가장 많이 발생하는 법정동 목록</h2>
-            <table>
-                <thead>
-                    <tr>
-                        <th>법정동명</th>
-                        <th>거래량</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    ${data1.map(districtData => `
-                        <tr>
-                            <td>${districtData._id}</td>
-                            <td>${districtData.거래량}건</td>
-                        </tr>
-                    `).join('')}
-                </tbody>
-            </table>
-        </div>` : '<div><p>결과가 없습니다.</p></div>';
+        `;
 
         js = `
         <script src="../js/4.js"></script>
@@ -306,7 +288,19 @@ router.get('/3', async (req, res, next) => {
             };
 
             const layout = {
-                title: '${gu}에서 거래가 가장 많이 발생하는 법정동 목록',
+
+                title: {
+                        text: '${gu}에서 거래가 가장 많이 발생하는 법정동 목록',
+                        font: {
+                            size: 22,
+                            color: 'black',
+                            family: 'Arial, Helvetica, sans-serif', // 둥글한 글씨체 설정
+                            weight: 'bold'
+                        }
+                    },
+
+                height: 700, // 그래프의 높이 조정
+                width: 700, // 그래프의 너비 조정
             };
 
             Plotly.newPlot('plotly-chart', [data], layout);
@@ -400,75 +394,86 @@ router.get('/4', async (req, res, next) => {
     </div>
     `;
 
-    if(gu && purpose && year){
-        //11.법정동별 가격평균값 역순 정렬
+    if (gu && purpose && year) {
+        // 동별 평균 가격 및 거래량을 가져오는 쿼리
         const data1 = await collection.aggregate([
-            { $match: { 연도: year, 건물용도: purpose,자치구명: gu } },
-            { $group: { _id: "$법정동명", 평균가격: { $avg: "$물건금액(만원)" } } },
+            { $match: { 연도: year, 건물용도: purpose, 자치구명: gu } },
+            { $group: { _id: "$법정동명", 평균가격: { $avg: "$물건금액(만원)" }, 거래량: { $sum: 1 } } },
             { $sort: { 평균가격: -1 } }
-        ]).toArray(); // 결과를 배열로 변환
-        console.log("받아온 쿼리 파라미터: ",data1);
-
-        //int로 변환
-        data1.forEach(building => {
-            building.평균가격 = parseInt(building.평균가격);
-        });
-
+        ]).toArray();
+    
         // 결과가 있는지 확인 후 출력
-        contents = (data1.length > 0) ? `
+        contents = `
         <div>
-            <h1>동별 평균 가격</h1>
+            <h1>동별 평균 가격 및 거래량</h1>
             <br>
-            <p>${year}년도 서울시 ${gu}구의 동별 ${purpose} 평균 가격입니다.</p>
+            <p>${year}년도 서울시 ${gu}구의 동별 ${purpose} 평균 가격 및 거래량입니다.</p>
         </div>
-
         <div id="plotly-chart"></div>
-        <div>
-        <h2> ${gu}에서의 동별 평균가 목록</h2>
-        <table>
-            <thead>
-                <tr>
-                    <th>자치구명</th>
-                    <th>평균가격</th>
-                </tr>
-            </thead>
-            <tbody>
-                ${data1.map(districtData => `
-                    <tr>
-                        <td>${districtData._id}</td>
-                        <td>${template.formatKoreanCurrency(districtData.평균가격.toFixed(0))}</td>
-                    </tr>
-                `).join('')}
-            </tbody>
-        </table>
-        </div>` : '<div><p>결과가 없습니다.</p></div>';
-
-
+        `;
+    
+        // 스크립트 생성
         js = `
         <script src="../js/4.js"></script>
         <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
         <script>
-        document.addEventListener('DOMContentLoaded', async function() {
-            const data = {
-                labels: ${JSON.stringify(data1.map(districtData => districtData._id))}, // 동명
-                values: ${JSON.stringify(data1.map(districtData => districtData.평균가격))}, // 평균가격
-                type: 'pie', // 차트 유형: 파이 차트
-                hovertemplate: '%{value} 만원 (%{percent})',
-                textinfo: 'label+value+percent', // 레이블, 값, 퍼센트 표시
-                textposition: 'inside', // 레이블을 파이 차트 안쪽에 위치
-            };
+            document.addEventListener('DOMContentLoaded', async function() {
+                const data = {
+                    x: ${JSON.stringify(data1.map(districtData => districtData._id))}, // 동명
+                    y: ${JSON.stringify(data1.map(districtData => districtData.평균가격))}, // 평균가격
+                    mode: 'markers', // 점 차트 모드
+                    marker: {
+                        size: ${JSON.stringify(data1.map(districtData => districtData.거래량))}, // 점 크기를 거래량에 반영
+                        sizemode: 'area', // 점 크기 조절 모드 설정
+                        sizeref: 0.1, // 점 크기 배율 조절
+                        sizemin: 5, // 점 최소 크기 설정
+                        color: ${JSON.stringify(data1.map(districtData => districtData.거래량))}, // 거래량에 따라 색상 지정
+                        colorscale: 'Viridis', // 색상 척도 설정
+                        showscale: true, // 색상 척도 표시 여부
+                        
+                    },
+                    hovertemplate: '%{x}: %{y:.0f}만원<br>거래량: %{marker.size}건', // 마우스 오버 시 정보 표시 형식
+                    name: '', // 색상 척도 이름
+                    
+                };
 
-            const layout = {
-                title: '${gu}에서의 동별 평균가 목록',
-            };
+                const layout = {
+                    title: {
+                        text: '${gu}에서의 동별 평균가 및 거래량 목록',
+                        font: {
+                            size: 22,
+                            color: 'black',
+                            family: 'Arial, Helvetica, sans-serif', // 둥글한 글씨체 설정
+                            weight: 'bold'
+                        }
+                    },
+                    yaxis: {
+                        title: {
+                            text: '평균가격 (만원)',
+                            font: {
+                                size: 14,
+                                color: 'black',
+                                family: 'Arial, Helvetica, sans-serif', // 둥글한 글씨체 설정
+                                weight: 'bold'
+                            }
+                        },
+                        tickformat: ',', // 숫자 형식 설정 (콤마 추가, 소수점 없음)
+                    },
+                    hoverlabel: {
+                        bgcolor: 'white', // 마우스 호버링 시 라벨의 배경색 설정
+                        bordercolor: 'black', // 마우스 호버링 시 라벨의 테두리 색상 설정
+                        font: { color: 'black' } // 마우스 호버링 시 라벨의 텍스트 색상 설정
+                    }
+                };
 
-            Plotly.newPlot('plotly-chart', [data], layout);
+                Plotly.newPlot('plotly-chart', [data], layout);
 
-            document.getElementById('plotly-chart').style.display = 'flex';
-            document.getElementById('plotly-chart').style.justifyContent = 'center';
-            document.getElementById('plotly-chart').style.alignItems = 'center';
-        });
+                document.getElementById('plotly-chart').style.display = 'flex';
+                document.getElementById('plotly-chart').style.justifyContent = 'center';
+                document.getElementById('plotly-chart').style.alignItems = 'center';
+            });
         </script>
+
         `;
     }
 
