@@ -58,7 +58,9 @@ router.get('/1', async (req, res, next) => {
                 return;
             }
             contents = `
-            ${data}
+            <div>
+                ${data}
+            </div>
             `
             res.send(template.make_page(css, search, contents, js));
         });
@@ -185,39 +187,46 @@ router.get('/3', async (req, res, next) => {
 
     year = parseInt(year);
 
-  //10. 거래가 가장 많이 발생하는 법정동 25개 역순 정렬
-    const data1 = await collection.aggregate([
-        { $match: { 연도: year, 건물용도: purpose, 자치구명: gu } },
-        { $group: { _id: "$법정동명", 거래량: { $sum: 1 } } },
-        { $sort: { 거래량: -1 } },
-        { $limit: 25 }
-    ]).toArray(); // 결과를 배열로 변환
-    console.log("받아온 쿼리 파라미터: ",data1);
+    var js = `
+    <script src="../js/4.js"></script>
+    `;
+    
+    var contents = ``;
+
+    if(gu && purpose && year){
+        //10. 거래가 가장 많이 발생하는 법정동 25개 역순 정렬
+        const data1 = await collection.aggregate([
+            { $match: { 연도: year, 건물용도: purpose, 자치구명: gu } },
+            { $group: { _id: "$법정동명", 거래량: { $sum: 1 } } },
+            { $sort: { 거래량: -1 } },
+            { $limit: 25 }
+        ]).toArray(); // 결과를 배열로 변환
+        console.log("받아온 쿼리 파라미터: ",data1);
 
 
-    const contents = (data1.length > 0) ? `
-    <div id="plotly-chart"></div>
-    <div>
-    <h2> ${gu}에서 거래가 가장 많이 발생하는 법정동 목록</h2>
-        <table>
-            <thead>
-                <tr>
-                    <th>법정동명</th>
-                    <th>거래량</th>
-                </tr>
-            </thead>
-            <tbody>
-                ${data1.map(districtData => `
+        contents = (data1.length > 0) ? `
+        <div id="plotly-chart"></div>
+        <div>
+        <h2> ${gu}에서 거래가 가장 많이 발생하는 법정동 목록</h2>
+            <table>
+                <thead>
                     <tr>
-                        <td>${districtData._id}</td>
-                        <td>${districtData.거래량}건</td>
+                        <th>법정동명</th>
+                        <th>거래량</th>
                     </tr>
-                `).join('')}
-            </tbody>
-        </table>
-    </div>` : '<div><p>결과가 없습니다.</p></div>';
+                </thead>
+                <tbody>
+                    ${data1.map(districtData => `
+                        <tr>
+                            <td>${districtData._id}</td>
+                            <td>${districtData.거래량}건</td>
+                        </tr>
+                    `).join('')}
+                </tbody>
+            </table>
+        </div>` : '<div><p>결과가 없습니다.</p></div>';
 
-    const js = `
+        js = `
         <script src="../js/4.js"></script>
         <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
         <script>
@@ -244,6 +253,7 @@ router.get('/3', async (req, res, next) => {
             Plotly.newPlot('plotly-chart', [data], layout);
         });
         </script>`;
+    }
 
     closeConnection(client);
     res.send(template.make_page(css, search, contents, js));
@@ -311,44 +321,53 @@ router.get('/4', async (req, res, next) => {
 
     year = parseInt(year);
 
-    //11.법정동별 가격평균값 역순 정렬
-    const data1 = await collection.aggregate([
-        { $match: { 연도: year, 건물용도: purpose,자치구명: gu } },
-        { $group: { _id: "$법정동명", 평균가격: { $avg: "$물건금액(만원)" } } },
-        { $sort: { 평균가격: -1 } }
-    ]).toArray(); // 결과를 배열로 변환
-    console.log("받아온 쿼리 파라미터: ",data1);
+    year = parseInt(year);
 
-    //int로 변환
-    data1.forEach(building => {
-        building.평균가격 = parseInt(building.평균가격);
-    });
+    var js = `
+    <script src="../js/4.js"></script>
+    `;
+    
+    var contents = ``;
 
-    // 결과가 있는지 확인 후 출력
-    const contents = (data1.length > 0) ? `
-    <div id="plotly-chart"></div>
-    <div>
-    <h2> ${gu}에서의 동별 평균가 목록</h2>
-    <table>
-        <thead>
-            <tr>
-                <th>자치구명</th>
-                <th>평균가격</th>
-            </tr>
-        </thead>
-        <tbody>
-            ${data1.map(districtData => `
+    if(gu && purpose && year){
+        //11.법정동별 가격평균값 역순 정렬
+        const data1 = await collection.aggregate([
+            { $match: { 연도: year, 건물용도: purpose,자치구명: gu } },
+            { $group: { _id: "$법정동명", 평균가격: { $avg: "$물건금액(만원)" } } },
+            { $sort: { 평균가격: -1 } }
+        ]).toArray(); // 결과를 배열로 변환
+        console.log("받아온 쿼리 파라미터: ",data1);
+
+        //int로 변환
+        data1.forEach(building => {
+            building.평균가격 = parseInt(building.평균가격);
+        });
+
+        // 결과가 있는지 확인 후 출력
+        contents = (data1.length > 0) ? `
+        <div id="plotly-chart"></div>
+        <div>
+        <h2> ${gu}에서의 동별 평균가 목록</h2>
+        <table>
+            <thead>
                 <tr>
-                    <td>${districtData._id}</td>
-                    <td>${template.formatKoreanCurrency(districtData.평균가격.toFixed(0))}</td>
+                    <th>자치구명</th>
+                    <th>평균가격</th>
                 </tr>
-            `).join('')}
-        </tbody>
-    </table>
-    </div>` : '<div><p>결과가 없습니다.</p></div>';
+            </thead>
+            <tbody>
+                ${data1.map(districtData => `
+                    <tr>
+                        <td>${districtData._id}</td>
+                        <td>${template.formatKoreanCurrency(districtData.평균가격.toFixed(0))}</td>
+                    </tr>
+                `).join('')}
+            </tbody>
+        </table>
+        </div>` : '<div><p>결과가 없습니다.</p></div>';
 
 
-    const js = `
+        js = `
         <script src="../js/4.js"></script>
         <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
         <script>
@@ -375,6 +394,7 @@ router.get('/4', async (req, res, next) => {
             Plotly.newPlot('plotly-chart', [data], layout);
         });
         </script>`;
+    }
 
     closeConnection(client);
     res.send(template.make_page(css, search, contents, js));

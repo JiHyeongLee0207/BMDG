@@ -26,7 +26,7 @@ router.get('/1', async (req, res, next) => {
     const css = `
     `;
     const search = `
-    <form id="yearForm" method="get">
+        <form id="yearForm" method="get">
         <div class="dropdown">
             <button type="button" class="dropbtn" id="dropdownButton">${boxName}</button>
             <div id="myDropdown" class="dropdown-content">
@@ -42,147 +42,150 @@ router.get('/1', async (req, res, next) => {
     let year = selectedYear;
     year = parseInt(year);
 
-
-
-    //1.연도를 입력받아 서울시에서 거래된 가장 비싼 건물의 정보 추출:
-    const data1 = await collection.aggregate([
-        { $match: { 연도: year } },
-        { $sort: { "물건금액(만원)": -1 } },
-        { $limit: 5 },
-        { $project: {
-            "_id":0,
-            "연도": 1,
-            "건물명":1,
-            "자치구명": 1,
-            "법정동명": 1,
-            "물건금액(만원)": 1,
-            "건물면적(㎡)": 1,
-            "층": 1,
-            "건물용도": 1
-        }}
-    ]).toArray(); // 결과를 배열로 변환
-    //console.log("받아온 쿼리 파라미터: ",data1);
-
-
-    //2.연도를 입력받아 서울시에서 거래된 가장 싼 건물의 정보 추출:
-    const data2 = await collection.aggregate([
-        { $match: { 연도: year } },
-        { $sort: { "물건금액(만원)": 1 } },
-        { $limit: 5 },
-        { $project: {
-            "_id":0,
-            "연도": 1,
-            "건물명":1,
-            "자치구명": 1,
-            "법정동명": 1,
-            "물건금액(만원)": 1,
-            "건물면적(㎡)": 1,
-            "층": 1,
-            "건물용도": 1
-        }}
-    ]).toArray(); // 결과를 배열로 변환
-    //console.log("받아온 쿼리 파라미터: ",data2);
-
-
-
-    // 결과를 HTML로 구성
-    const contents = (data1.length > 0 || data2.length > 0) ? `
-    <div id="plotly-chart"></div>
-    
-
-    <div>
-    <h2>최대 물건금액 검색 결과</h2>
-    ${data1.length > 0 ? data1.map((building, index) => `
-        <div>
-            <p>연도: ${building.연도}</p>
-            <p>건물명: ${building.건물명}</p>
-
-            <p>자치구명: ${building.자치구명}</p>
-            <p>법정동명: ${building.법정동명}</p>
-            <p>물건금액: ${template.formatKoreanCurrency(building["물건금액(만원)"])}</p>  
-            <p>건물면적: ${building["건물면적(㎡)"]}m^2</p>
-            <p>층: ${building.층}층</p>
-            <p>건물용도: ${building.건물용도}</p>
-        </div>
-    `).join('') : '<p>결과가 없습니다.</p>'}
-
-    <h2>최소 물건금액 검색 결과</h2>
-    ${data2.length > 0 ? data2.map((building, index) => `
-        <div>
-            <p>연도: ${building.연도}</p>
-            <p>건물명: ${building.건물명}</p>
-            <p>자치구명: ${building.자치구명}</p>
-            <p>법정동명: ${building.법정동명}</p>
-            <p>물건금액: ${template.formatKoreanCurrency(building["물건금액(만원)"])}</p>  
-            <p>건물면적: ${building["건물면적(㎡)"]}m^2</p>
-            <p>층: ${building.층}층</p>
-            <p>건물용도: ${building.건물용도}</p>
-        </div>
-    `).join('') : '<p>결과가 없습니다.</p>'}
-    </div>` : '<div><p>결과가 없습니다.</p></div>';
-
-    console.log(contents);
-    
-
-
-    const js = `
+    var js = `
     <script src="../js/13.js"></script>
-    
-    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
-    <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // 시각화를 위한 데이터 가공
-        const expensiveBuildings = ${JSON.stringify(data1)};
-        const cheapBuildings = ${JSON.stringify(data2)};
-
-        const expensiveX = expensiveBuildings.map((building, index) => \`비싼 순위 \${index + 1}등\`);
-        const cheapX = cheapBuildings.map((building, index) => \`싼 순위 \${index + 1}등\`);
-
-        const expensiveY = expensiveBuildings.map(building => building["물건금액(만원)"]);
-        const cheapY = cheapBuildings.map(building => building["물건금액(만원)"]);
-
-        const trace1 = {
-            x: expensiveX,
-            y: expensiveY,
-            type: 'bar',
-            name: '비싼 건물',
-            marker: {
-                color: '#ff7f0e'
-            },
-            hovertemplate: '%{y} 만원'
-        };
-
-        const trace2 = {
-            x: cheapX,
-            y: cheapY,
-            type: 'bar',
-            name: '싼 건물',
-            marker: {
-                color: '#1f77b4'
-            },
-            hovertemplate: '%{y} 만원'
-        };
-
-        const data = [trace1, trace2];
-
-        const layout = {
-            title: '서울시 건물 거래 정보',
-            barmode: 'group', // 그룹 모드 설정
-            yaxis: {
-                title: '물건금액(만원)',
-                tickformat: ',' // 천 단위 구분자를 사용하여 숫자를 표시합니다. 예: 1,000
-            }
-        };
-
-        // 시각화된 차트를 HTML에 추가
-        const divId = 'plotly-chart';
-        const plotData = data;
-        const plotLayout = layout;
-        Plotly.newPlot(divId, plotData, plotLayout);
-    });
-</script>
-
     `;
+    
+    var contents = ``;
+
+    if(year){
+        //1.연도를 입력받아 서울시에서 거래된 가장 비싼 건물의 정보 추출:
+        const data1 = await collection.aggregate([
+            { $match: { 연도: year } },
+            { $sort: { "물건금액(만원)": -1 } },
+            { $limit: 5 },
+            { $project: {
+                "_id":0,
+                "연도": 1,
+                "건물명":1,
+                "자치구명": 1,
+                "법정동명": 1,
+                "물건금액(만원)": 1,
+                "건물면적(㎡)": 1,
+                "층": 1,
+                "건물용도": 1
+            }}
+        ]).toArray(); // 결과를 배열로 변환
+        //console.log("받아온 쿼리 파라미터: ",data1);
+
+
+        //2.연도를 입력받아 서울시에서 거래된 가장 싼 건물의 정보 추출:
+        const data2 = await collection.aggregate([
+            { $match: { 연도: year } },
+            { $sort: { "물건금액(만원)": 1 } },
+            { $limit: 5 },
+            { $project: {
+                "_id":0,
+                "연도": 1,
+                "건물명":1,
+                "자치구명": 1,
+                "법정동명": 1,
+                "물건금액(만원)": 1,
+                "건물면적(㎡)": 1,
+                "층": 1,
+                "건물용도": 1
+            }}
+        ]).toArray(); // 결과를 배열로 변환
+        //console.log("받아온 쿼리 파라미터: ",data2);
+
+
+
+        // 결과를 HTML로 구성
+        contents = (data1.length > 0 || data2.length > 0) ? `
+        <div id="plotly-chart"></div>
+        
+
+        <div>
+        <h2>최대 물건금액 검색 결과</h2>
+        ${data1.length > 0 ? data1.map((building, index) => `
+            <div>
+                <p>연도: ${building.연도}</p>
+                <p>건물명: ${building.건물명}</p>
+
+                <p>자치구명: ${building.자치구명}</p>
+                <p>법정동명: ${building.법정동명}</p>
+                <p>물건금액: ${template.formatKoreanCurrency(building["물건금액(만원)"])}</p>  
+                <p>건물면적: ${building["건물면적(㎡)"]}m^2</p>
+                <p>층: ${building.층}층</p>
+                <p>건물용도: ${building.건물용도}</p>
+            </div>
+        `).join('') : '<p>결과가 없습니다.</p>'}
+
+        <h2>최소 물건금액 검색 결과</h2>
+        ${data2.length > 0 ? data2.map((building, index) => `
+            <div>
+                <p>연도: ${building.연도}</p>
+                <p>건물명: ${building.건물명}</p>
+                <p>자치구명: ${building.자치구명}</p>
+                <p>법정동명: ${building.법정동명}</p>
+                <p>물건금액: ${template.formatKoreanCurrency(building["물건금액(만원)"])}</p>  
+                <p>건물면적: ${building["건물면적(㎡)"]}m^2</p>
+                <p>층: ${building.층}층</p>
+                <p>건물용도: ${building.건물용도}</p>
+            </div>
+        `).join('') : '<p>결과가 없습니다.</p>'}
+        </div>` : '<div><p>결과가 없습니다.</p></div>';
+
+        console.log(contents);
+
+        js = `
+        <script src="../js/13.js"></script>
+
+        <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+        <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // 시각화를 위한 데이터 가공
+            const expensiveBuildings = ${JSON.stringify(data1)};
+            const cheapBuildings = ${JSON.stringify(data2)};
+
+            const expensiveX = expensiveBuildings.map((building, index) => \`비싼 순위 \${index + 1}등\`);
+            const cheapX = cheapBuildings.map((building, index) => \`싼 순위 \${index + 1}등\`);
+
+            const expensiveY = expensiveBuildings.map(building => building["물건금액(만원)"]);
+            const cheapY = cheapBuildings.map(building => building["물건금액(만원)"]);
+
+            const trace1 = {
+                x: expensiveX,
+                y: expensiveY,
+                type: 'bar',
+                name: '비싼 건물',
+                marker: {
+                    color: '#ff7f0e'
+                },
+                hovertemplate: '%{y} 만원'
+            };
+
+            const trace2 = {
+                x: cheapX,
+                y: cheapY,
+                type: 'bar',
+                name: '싼 건물',
+                marker: {
+                    color: '#1f77b4'
+                },
+                hovertemplate: '%{y} 만원'
+            };
+
+            const data = [trace1, trace2];
+
+            const layout = {
+                title: '서울시 건물 거래 정보',
+                barmode: 'group', // 그룹 모드 설정
+                yaxis: {
+                    title: '물건금액(만원)',
+                    tickformat: ',' // 천 단위 구분자를 사용하여 숫자를 표시합니다. 예: 1,000
+                }
+            };
+
+            // 시각화된 차트를 HTML에 추가
+            const divId = 'plotly-chart';
+            const plotData = data;
+            const plotLayout = layout;
+            Plotly.newPlot(divId, plotData, plotLayout);
+        });
+        </script>
+        `;
+    }
 
     closeConnection(client);
     res.send(template.make_page(css, search, contents, js));
@@ -222,7 +225,13 @@ router.get('/2',async (req, res, next) => {
     let year = selectedYear;
     year = parseInt(year);
 
-    // 연도를 입력받아 면적대비 가격이 비싼 건물 3개의 정보 추출
+    var js =`
+    <script src="../js/13.js"></script>
+    `;
+    var contents = ``;
+
+    if(year){
+        // 연도를 입력받아 면적대비 가격이 비싼 건물 3개의 정보 추출
     const expensiveBuildings = await collection.aggregate([
         { $match: { 연도: year } },
         { $addFields: { "면적대비가격": { $divide: ["$물건금액(만원)", "$건물면적(㎡)"] } } },
@@ -275,7 +284,7 @@ router.get('/2',async (req, res, next) => {
     });
 
     // 결과를 HTML로 구성
-    const contents = (expensiveBuildings.length > 0 || cheapBuildings.length > 0) ? `
+    contents = (expensiveBuildings.length > 0 || cheapBuildings.length > 0) ? `
     <div id="plotly-chart"></div>
     
     <div>
@@ -311,111 +320,66 @@ router.get('/2',async (req, res, next) => {
     console.log(contents);
 
 
-    const js = `
-    <script src="../js/13.js"></script>
-    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
-    // <script>
-    //     const expensiveBuildings = ${JSON.stringify(expensiveBuildings)};
-    //     const cheapBuildings = ${JSON.stringify(cheapBuildings)};
+    js = `
+        <script src="../js/13.js"></script>
+        <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
 
-    //     document.addEventListener('DOMContentLoaded', function () {
-    //         const expensiveX = expensiveBuildings.map((building, index) => \`비싼 건물 \${index + 1}\`);
-    //         const expensiveY = expensiveBuildings.map(building => building.면적대비가격);
+        <script>
+        const expensiveBuildings = ${JSON.stringify(expensiveBuildings)};
+        const cheapBuildings = ${JSON.stringify(cheapBuildings)};
 
-    //         const cheapX = cheapBuildings.map((building, index) => \`싼 건물 \${index + 1}\`);
-    //         const cheapY = cheapBuildings.map(building => building.면적대비가격);
+        document.addEventListener('DOMContentLoaded', function () {
+            const categories = [];
+            const expensiveY = expensiveBuildings.map((building, index) => {
+                categories.push(\`가격순위 \${index + 1} 등\`);
+                return building.면적대비가격;
+            });
 
-    //         const trace1 = {
-    //             x: expensiveX,
-    //             y: expensiveY,
-    //             type: 'bar',
-    //             name: '비싼 건물',
-    //             hovertemplate: '%{y} 만원'
-    //         };
+            const cheapY = cheapBuildings.map(building => building.면적대비가격);
 
-    //         const trace2 = {
-    //             x: cheapX,
-    //             y: cheapY,
-    //             type: 'bar',
-    //             name: '',
-    //             hoverinfo: 'y',
-    //             hovertemplate: '%{y} 만원'
-    //         };
+            const trace1 = {
+                x: categories,
+                y: expensiveY,
+                type: 'bar',
+                name: '비싼 건물',
+                marker: {
+                    color: '#ff7f0e'
+                },
+                hoverinfo: 'x+y', // 이름과 값만 표시됩니다.
+                hovertemplate: '%{y} 만원'
+            };
 
-    //         const data = [trace1, trace2];
+            const trace2 = {
+                x: categories,
+                y: cheapY,
+                type: 'bar',
+                name: '싼 건물',
+                marker: {
+                    color: '#1f77b4'
+                },
+                hoverinfo: 'x+y', // 이름과 값만 표시됩니다.
+                hovertemplate: '%{y} 만원'
+            };
 
-    //         const layout = {
-    //             title: '면적대비 가격',
-    //             barmode: 'group',
-    //             yaxis: {
-    //                 title: '물건금액(만원)',
-    //                 tickformat: ',' // 천 단위 구분자를 사용하여 숫자를 표시합니다. 예: 1,000
-    //             }
-    //         };
+            const data = [trace1, trace2];
 
-    //         Plotly.newPlot('plotly-chart', data, layout);
-    //     });
-    // </script>
+            const layout = {
+                title: '1m^2당 가격',
+                barmode: 'overlay', // 막대를 겹쳐서 표시
+                yaxis: {
+                    title: '물건금액(만원)',
+                    tickformat: ',', // 천 단위 구분자를 사용하여 숫자를 표시합니다.
+                },
+                bargap: 0.4, // 요소별 간격 조정
+                bargroupgap: 0.1 // 그룹 간격 조정
+                
+            };
 
-    <script>
-    const expensiveBuildings = ${JSON.stringify(expensiveBuildings)};
-    const cheapBuildings = ${JSON.stringify(cheapBuildings)};
-
-    document.addEventListener('DOMContentLoaded', function () {
-        const categories = [];
-        const expensiveY = expensiveBuildings.map((building, index) => {
-            categories.push(\`가격순위 \${index + 1} 등\`);
-            return building.면적대비가격;
+            Plotly.newPlot('plotly-chart', data, layout);
         });
-
-        const cheapY = cheapBuildings.map(building => building.면적대비가격);
-
-        const trace1 = {
-            x: categories,
-            y: expensiveY,
-            type: 'bar',
-            name: '비싼 건물',
-            marker: {
-                color: '#ff7f0e'
-            },
-            hoverinfo: 'x+y', // 이름과 값만 표시됩니다.
-            hovertemplate: '%{y} 만원'
-        };
-
-        const trace2 = {
-            x: categories,
-            y: cheapY,
-            type: 'bar',
-            name: '싼 건물',
-            marker: {
-                color: '#1f77b4'
-            },
-            hoverinfo: 'x+y', // 이름과 값만 표시됩니다.
-            hovertemplate: '%{y} 만원'
-        };
-
-        const data = [trace1, trace2];
-
-        const layout = {
-            title: '1m^2당 가격',
-            barmode: 'overlay', // 막대를 겹쳐서 표시
-            yaxis: {
-                title: '물건금액(만원)',
-                tickformat: ',', // 천 단위 구분자를 사용하여 숫자를 표시합니다.
-            },
-            bargap: 0.4, // 요소별 간격 조정
-            bargroupgap: 0.1 // 그룹 간격 조정
-            
-        };
-
-        Plotly.newPlot('plotly-chart', data, layout);
-    });
-    </script>
-
-        
-    `;
-
-    
+        </script>
+        `;
+    }
     closeConnection(client);
     res.send(template.make_page(css, search, contents, js));
 });

@@ -28,7 +28,7 @@ router.get('/', (req, res, next) => {
                     <p><b>Email</b> ichan0318@naver.com</p>
                 </div>
                 <div>
-                    <img src="./image/jihyeong.png" alt="이지형">
+                    <img src="./image/jihyeong.jpg" alt="이지형">
                     <p>이지형</p>
                     <p><b>Email</b> wptvkdldj@gmail.com</p>
                 </div>
