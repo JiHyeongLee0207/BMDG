@@ -255,11 +255,13 @@ router.get('/3', async (req, res, next) => {
     if(gu && purpose && year){
         //10. 거래가 가장 많이 발생하는 법정동 25개 역순 정렬
         const data1 = await collection.aggregate([
-            { $match: { 연도: year, 건물용도: purpose, 자치구명: gu } },
-            { $group: { _id: "$법정동명", 거래량: { $sum: 1 } } },
-            { $sort: { 거래량: -1 } },
-            { $limit: 25 }
-        ]).toArray(); // 결과를 배열로 변환
+        { $match: { 연도: year, 건물용도: purpose,
+            자치구명: gu } },
+        { $group: { _id: "$법정동명",
+            거래량: { $sum: 1 } } },
+        { $sort: { 거래량: -1 } }
+        ])
+        .toArray(); // 결과를 배열로 변환
         console.log("받아온 쿼리 파라미터: ",data1);
 
 
@@ -290,7 +292,7 @@ router.get('/3', async (req, res, next) => {
             const layout = {
 
                 title: {
-                        text: '${gu}에서 거래가 가장 많이 발생하는 법정동 목록',
+                        text: '${gu}에서 거래가 가장 많이 발생하는 동 목록',
                         font: {
                             size: 22,
                             color: 'black',
@@ -457,7 +459,7 @@ router.get('/4', async (req, res, next) => {
                                 weight: 'bold'
                             }
                         },
-                        tickformat: ',', // 숫자 형식 설정 (콤마 추가, 소수점 없음)
+                        tickformat: ',', // 숫자 형식 설정
                     },
                     hoverlabel: {
                         bgcolor: 'white', // 마우스 호버링 시 라벨의 배경색 설정
