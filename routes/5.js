@@ -648,7 +648,7 @@ router.get('/2', async (req, res, next) => {
     `;
     var js = `<script src="../js/5.js"></script>`;
 
-    if(gu && purpose && year && areaRange && rateIncrease && income && considerExpenses && annualExpenses){
+    if(gu && purpose && year && areaRange  && income){
         const matchStage = {
             $match: {
                 연도: year,
