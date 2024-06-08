@@ -190,6 +190,12 @@ router.get('/1', async (req, res, next) => {
     }
     const answer = yearsRequired;
     const realannualExpenses=annualExpenses*12;
+    // 스크립트 바깥쪽에 const로 값이 on이면 1, 아니면 0으로 설정
+
+
+    const RrateIncrease = rateIncrease === "on" ? 1 : 0;
+    const RconsiderExpenses = considerExpenses === "on" ? 1 : 0;
+    
     
     // 기준표 : kosis 국가통계표
     // 임금 상승률 12~23년간 총 12년 평균 3.7
@@ -211,6 +217,7 @@ router.get('/1', async (req, res, next) => {
         let currentSavings2 = 0;
         let currentIncome = income;
         let expense = 12*annualExpenses; //지출
+        
     
         // 최고가를 가진 건물의 가격보다 적절한 저축이 될 때까지 반복하여 연도를 계산
         while (currentSavings2 < building["물건금액(만원)"]) {
@@ -342,6 +349,10 @@ router.get('/1', async (req, res, next) => {
         let netIncome = currentIncome - expense; // 순수익
         let target = ${avgPrice}; // 목표 가격
 
+        // 상승률 고려 체크박스 상태 가져오기
+        const rateIncrease = ${RrateIncrease}; // 수익률 상승률 고려 여부
+        const considerExpenses = ${RconsiderExpenses}; // 지출 상승률 고려 여부
+
         // 반복 횟수 설정
         const repeatCount = ${answer}; // 필요한 연도 계산 결과 사용
         var xValues = [];
@@ -366,9 +377,11 @@ router.get('/1', async (req, res, next) => {
             textValues.push((currentIncome-expense).toFixed(0) + "만원");
             measures.push("total");
 
+        
             // 수입과 지출에 상승률 적용
-            currentIncome *= 1.037; // 수입 상승률 적용
-            expense *= 1.024; // 지출 상승률 적용
+            if (rateIncrease) currentIncome *= 1.037; // 수입 상승률 적용
+            if (considerExpenses) expense *= 1.024; // 지출 상승률 적용
+
         }
 
         var data = [{
@@ -603,6 +616,10 @@ router.get('/2', async (req, res, next) => {
         if (considerExpenses) expense *= 1.024; // 지출 상승률 적용 (2.4% 상승)
     }
 
+
+    const RrateIncrease = rateIncrease === "on" ? 1 : 0;
+    const RconsiderExpenses = considerExpenses === "on" ? 1 : 0;
+
     // 총 저축액으로 구매 가능한 건물들을 조회
     const affordableBuildings = await collection.aggregate([
         matchStage,
@@ -640,6 +657,7 @@ router.get('/2', async (req, res, next) => {
             <h1>${year}년 기준 ${gu}에서 ${areaRange} ${purpose}를 사려고 한다 
             <br>매년 연봉 ${template.formatKoreanCurrency(income)}으로 한달에 ${template.formatKoreanCurrency(annualExpenses)}씩 쓸때</h1>
             <h2>단 한번도 안짤리고 연속으로 ${years}년 만큼 일하면 살수있는 ${purpose}와 가격</h2>
+            <h2>내가번돈 ${totalSavings}</h2>
             <table>    
                 <thead>
                     <tr>
@@ -669,6 +687,10 @@ router.get('/2', async (req, res, next) => {
             let netIncome = currentIncome - expense; // 순수익
             let target = ${totalSavings}; // 목표 가격
 
+            // 상승률 고려 체크박스 상태 가져오기
+            const rateIncrease = ${RrateIncrease}; // 수익률 상승률 고려 여부
+            const considerExpenses = ${RconsiderExpenses}; // 지출 상승률 고려 여부
+
             // 반복 횟수 설정
             const repeatCount = ${years}; // 필요한 연도 계산 결과 사용
             var xValues = [];
@@ -693,9 +715,10 @@ router.get('/2', async (req, res, next) => {
                 textValues.push((currentIncome-expense).toFixed(0) + "만원");
                 measures.push("total");
 
+
                 // 수입과 지출에 상승률 적용
-                currentIncome *= 1.037; // 수입 상승률 적용
-                expense *= 1.024; // 지출 상승률 적용
+                if (rateIncrease) currentIncome *= 1.037; // 수입 상승률 적용
+                if (considerExpenses) expense *= 1.024; // 지출 상승률 적용
             }
 
             var data = [{
