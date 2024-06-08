@@ -71,7 +71,8 @@ const {
                     "건물면적(㎡)": 1,
                     "건물용도": 1
                 }}
-            ]).toArray(); // 결과를 배열로 변환
+            ])
+            .toArray(); // 결과를 배열로 변환
             //console.log("받아온 쿼리 파라미터: ",data1);
 
 
@@ -80,7 +81,7 @@ const {
                 { $match: { 연도: year } },
                 { $sort: { "물건금액(만원)": 1 } },
                 { $limit: 5 },
-                { $project: {
+                { $project: {   
                     "_id":0,
                     "연도": 1,
                     "건물명":1,
@@ -88,6 +89,7 @@ const {
                     "법정동명": 1,
                     "물건금액(만원)": 1,
                     "건물면적(㎡)": 1,
+                    "층": 1,
                     "건물용도": 1
                 }}
             ]).toArray(); // 결과를 배열로 변환
@@ -176,6 +178,9 @@ const {
                     const plotData = data;
                     const plotLayout = layout;
                     Plotly.newPlot(divId, plotData, plotLayout);
+                    document.getElementById('plotly-chart').style.display = 'flex';
+            document.getElementById('plotly-chart').style.justifyContent = 'center';
+            document.getElementById('plotly-chart').style.alignItems = 'center';
                 });
             </script>
 
@@ -241,7 +246,9 @@ router.get('/2',async (req, res, next) => {
         // 연도를 입력받아 면적대비 가격이 비싼 건물 3개의 정보 추출
     const expensiveBuildings = await collection.aggregate([
         { $match: { 연도: year } },
-        { $addFields: { "면적대비가격": { $divide: ["$물건금액(만원)", "$건물면적(㎡)"] } } },
+        { $addFields: { "면적대비가격": { 
+            $divide: ["$물건금액(만원)", "$건물면적(㎡)"] 
+        } } },
         { $sort: { "면적대비가격": -1 } },
         { $limit: 10 },
         { $project: {
@@ -278,6 +285,7 @@ router.get('/2',async (req, res, next) => {
             "자치구명": 1,
             "법정동명": 1,
             "면적대비가격": 1,
+            "층": 1,
             "건물용도": 1,
             "물건금액(만원)":1,
             "건물면적(㎡)":1
@@ -391,6 +399,9 @@ router.get('/2',async (req, res, next) => {
         };
 
         Plotly.newPlot('plotly-chart', data, layout);
+        document.getElementById('plotly-chart').style.display = 'flex';
+            document.getElementById('plotly-chart').style.justifyContent = 'center';
+            document.getElementById('plotly-chart').style.alignItems = 'center';
     });
 </script>
 
