@@ -49,3 +49,32 @@ function handleSubmit(event) {
     showLoadingScreen();
     document.getElementById('yearForm').submit();
 }
+
+function determinePicto(yearsRequired) { // 픽토그램 변경
+    let pictoPath = '/image/';
+    let pictoLetter = ``;
+    if (yearsRequired <= 3) {
+        pictoPath += '1.png';
+        pictoLetter = ' 얼마 안 남은 것 같아요. 힘내세요!';
+    } else if (yearsRequired <= 10) {
+        pictoPath += '2.png';
+        pictoLetter = ' 이 정도면 할 수 있을 것 같네요.';
+    } else if (yearsRequired <= 20) {
+        pictoPath += '3.png';
+        pictoLetter = ' 살 집을 마련해주신 부모님의 대단함이 느껴집니다.';
+    } else if (yearsRequired <= 30) {
+        pictoPath += '4.png';
+        pictoLetter = ' 당신의 청춘을 한 번 더 바치면 되겠네요.';
+    } else if (yearsRequired <= 50) {
+        pictoPath += '5.png';
+        pictoLetter = ' 우리 현실과 합의해보는 것이 어떨까요?';
+    } else if (yearsRequired <= 80) {
+        pictoPath += '6.png';
+        pictoLetter = ' 최소한 노년은 보낼 집이 있겠네요.';
+    } else {
+        pictoPath += '7.png';
+        pictoLetter = ' 사후 세계에 집을 마련한다면 말리지는 않겠어요.';
+    }
+    document.getElementById('picto').src = pictoPath;
+    document.getElementById('pictoInfo').innerText = pictoLetter;
+};

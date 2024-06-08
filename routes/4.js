@@ -297,27 +297,26 @@ router.get('/3', async (req, res, next) => {
         <script>
         document.addEventListener('DOMContentLoaded', async function() {
             const data = {
-                x: ${JSON.stringify(data1.map(districtData => districtData._id))}, // 동명
-                y: ${JSON.stringify(data1.map(districtData => districtData.거래량))}, // 거래량
-                type: 'bar', // 차트 유형: 바 차트
-                name: '',
-                hovertemplate: '%{y} 건',
+                labels: ${JSON.stringify(data1.map(districtData => districtData._id))}, // 동명
+                values: ${JSON.stringify(data1.map(districtData => districtData.거래량))}, // 거래량
+                type: 'pie', // 차트 유형: 파이 차트
+                hovertemplate: '%{value} 건 (%{percent})',
+                textinfo: 'label+value+percent', // 레이블, 값, 퍼센트 표시
+                textposition: 'inside', // 레이블을 파이 차트 바깥에 위치
             };
 
             const layout = {
                 title: '${gu}에서 거래가 가장 많이 발생하는 법정동 목록',
-                xaxis: {
-                    title: '법정동명'
-                },
-                yaxis: {
-                    title: '거래량',
-                    tickformat: ','  // 천 단위 구분자를 사용
-                }
             };
 
             Plotly.newPlot('plotly-chart', [data], layout);
+
+            document.getElementById('plotly-chart').style.display = 'flex';
+            document.getElementById('plotly-chart').style.justifyContent = 'center';
+            document.getElementById('plotly-chart').style.alignItems = 'center';
         });
-        </script>`;
+        </script>
+        `;
     }
 
     closeConnection(client);
@@ -451,27 +450,26 @@ router.get('/4', async (req, res, next) => {
         <script>
         document.addEventListener('DOMContentLoaded', async function() {
             const data = {
-                x: ${JSON.stringify(data1.map(districtData => districtData._id))}, // 동명
-                y: ${JSON.stringify(data1.map(districtData => districtData.평균가격))}, // 평균가격
-                type: 'bar', // 차트 유형: 바 차트
-                name: '',
-                hovertemplate: '%{y} 만원',
+                labels: ${JSON.stringify(data1.map(districtData => districtData._id))}, // 동명
+                values: ${JSON.stringify(data1.map(districtData => districtData.평균가격))}, // 평균가격
+                type: 'pie', // 차트 유형: 파이 차트
+                hovertemplate: '%{value} 만원 (%{percent})',
+                textinfo: 'label+value+percent', // 레이블, 값, 퍼센트 표시
+                textposition: 'inside', // 레이블을 파이 차트 안쪽에 위치
             };
 
             const layout = {
                 title: '${gu}에서의 동별 평균가 목록',
-                xaxis: {
-                    title: '동명'
-                },
-                yaxis: {
-                    title: '평균가격 (만원)',
-                    tickformat: ','  // 천 단위 구분자를 사용
-                }
             };
 
             Plotly.newPlot('plotly-chart', [data], layout);
+
+            document.getElementById('plotly-chart').style.display = 'flex';
+            document.getElementById('plotly-chart').style.justifyContent = 'center';
+            document.getElementById('plotly-chart').style.alignItems = 'center';
         });
-        </script>`;
+        </script>
+        `;
     }
 
     closeConnection(client);
