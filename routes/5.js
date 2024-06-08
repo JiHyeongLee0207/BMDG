@@ -32,6 +32,7 @@ router.get('/1', async (req, res, next) => {
     year = req.query.year;
     income = req.query.income;
     annualExpenses = req.query.annualExpenses;
+
     if (!Number.isInteger(parseInt(year))) {
         year = parseInt(year);
         console.log("Converted year to Number:", year); // 변환된 year 값 로깅
@@ -144,7 +145,6 @@ router.get('/1', async (req, res, next) => {
         income, 
         considerExpenses, // 체크박스
         annualExpenses,
-        years
     );
 
     // 연도, 수입, 연간 지출, 목표 저축 연도를 정수로 변환
@@ -163,7 +163,7 @@ router.get('/1', async (req, res, next) => {
     `;
     var js = `<script src="../js/5.js"></script>`;
 
-    if(gu && purpose && year && areaRange && income && annualExpenses){
+    if(gu && purpose && year && areaRange){
         // MongoDB 쿼리를 위한 matchStage 객체 초기화
         const matchStage = {
             $match: {
@@ -533,6 +533,18 @@ router.get('/2', async (req, res, next) => {
     year = req.query.year;
     income = req.query.income;
     annualExpenses = req.query.annualExpenses;
+
+    console.log("받아온 파라미터들: ",
+        "gu", gu,
+        "purpose", purpose,
+        "year", year,
+        "areaRange", areaRange,
+        "rateIncrease", rateIncrease, // 체크박스
+        "income", income, 
+        "considerExpenses", considerExpenses, // 체크박스
+        "annualExpenses", annualExpenses
+    );
+
     if (!Number.isInteger(parseInt(year))) {
         year = parseInt(year);
         console.log("Converted year to Number:", year); // 변환된 year 값 로깅
@@ -632,7 +644,8 @@ router.get('/2', async (req, res, next) => {
         rateIncrease, // 체크박스
         income, 
         considerExpenses, // 체크박스
-        annualExpenses );
+        annualExpenses
+    );
 
     year = parseInt(year);
     income = parseInt(income);
@@ -648,7 +661,7 @@ router.get('/2', async (req, res, next) => {
     `;
     var js = `<script src="../js/5.js"></script>`;
 
-    if(gu && purpose && year && areaRange && income && annualExpenses){
+    if(gu && purpose && year && areaRange){
         const matchStage = {
             $match: {
                 연도: year,
@@ -801,7 +814,6 @@ router.get('/2', async (req, res, next) => {
         ` : '<div><p>최고가 5개 건물 정보가 없습니다.</p></div>'}
         </div>
         `;  
-        console.log(contents); // 결과 출력
         
         js = `
         <script src="../js/5.js"></script>
