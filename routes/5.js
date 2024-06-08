@@ -741,7 +741,7 @@ router.get('/2', async (req, res, next) => {
                 </tr>
             `;
         });
-        
+
         // 결과를 HTML 형식으로 포맷하여 생성
         contents = `
         <div>
@@ -762,30 +762,38 @@ router.get('/2', async (req, res, next) => {
         </div>
         <div>
         ${avgPriceData.length > 0 ? `
-            <div>
-                <p>${year}년 기준 ${gu}에서 ${areaRange} ${purpose}를 사려고 한다, 
-                <br>매년 연봉 ${template.formatKoreanCurrency(income)}으로 한달에 ${template.formatKoreanCurrency(annualExpenses)}씩 쓸때</p>
-                <p>단 한번도 안짤리고 연속으로 일해야하는 년 수 과 평균 가격</p>
-                <h1>평균 가격: ${template.formatKoreanCurrency(avgPrice.toFixed(0))}</h1>
-                <h1>구매까지 소요되는 년 수: ${yearsRequired}년</h1>
+            <div style="display:grid; grid-template-rows: auto auto auto">
+                <div class="lastInfo" style="padding:0">
+                    <p>${year}년 기준 ${gu}에서 ${areaRange} ${purpose}를 사려고 한다. 
+                    <br>매년 연봉 ${template.formatKoreanCurrency(income)}으로 한달에 ${template.formatKoreanCurrency(annualExpenses)}씩 쓸때,</p>
+                    <p>단 한번도 안짤리고 연속으로 일해야하는 년 수 과 평균 가격</p>
+                    <h1>평균 가격: ${template.formatKoreanCurrency(avgPrice.toFixed(0))}</h1>
+                    <h1>구매까지 소요되는 년 수: <span style="color:red;">${yearsRequired}</span>년</h1>
+                </div>
+                <div style="padding:0; display: flex; align-items: center; justify-content: center;">
+                    <img id="picto" src="" alt="이미지">
+                    <p id="pictoInfo" style="color:blue;">오류</p>
+                </div>
             </div>
         ` : '<div><p>평균 가격 정보가 없습니다.</p></div>'}
         ${top5Data.length > 0 ? `
-            <div>
-                <h2>최고가 5개 ${purpose} 가격 및 구매까지 소요되는 년 수</h2>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>건물명</th>
-                            <th>가격</th>
-                            <th>소요년수</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        ${top5Contents}
-                    </tbody>
-                </table>
-            </div>
+        <p>&nbsp;</p>
+        <div style="text-align: center; display: flex; flex-direction: column; align-items: center;">
+            <h3>최고가 5개 ${purpose} 가격 및 구매까지 소요되는 년 수</h3>
+            <table style="margin: 0 auto;">
+                <thead>
+                    <tr>
+                        <th>건물명</th>
+                        <th>가격</th>
+                        <th>소요년수</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${top5Contents}
+                </tbody>
+            </table>
+        </div>
+        <p>&nbsp;</p>
         ` : '<div><p>최고가 5개 건물 정보가 없습니다.</p></div>'}
         </div>
         `;  
@@ -795,6 +803,7 @@ router.get('/2', async (req, res, next) => {
         <script src="../js/5.js"></script>
         <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
         <script> // 수입, 지출, 순수익차트
+            determinePicto(${yearsRequired});
             document.addEventListener("DOMContentLoaded", function(event) {
                 // 수입, 지출, 순수익 계산
                 const income = ${income};
