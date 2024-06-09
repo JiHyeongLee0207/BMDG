@@ -83,19 +83,20 @@ const {
     if(year1&&year2){
         //5. 용도별 연간 평균 가격
         const data = await collection.aggregate([
-            { $match: {
-                연도: { $gte: year1, $lte: year2 },
-            }},
-            { $group: {
-                _id: { 연도: "$연도", 건물용도: "$건물용도" },
-                평균거래가격: { $avg: "$물건금액(만원)" }
-            }},
-            { 
-                $sort: { "_id.건물용도": 1, "_id.연도": 1 }
-            }
-        ]).toArray(); // 결과를 배열로 변환
+        { $match: {
+            연도: { $gte: year1, $lte: year2 },
+        }},
+        { $group: {
+            _id: { 연도: "$연도", 건물용도: "$건물용도" },
+            평균거래가격: { $avg: "$물건금액(만원)" }
+        }},
+        { 
+            $sort: { "_id.건물용도": 1, "_id.연도": 1 }
+        }
+        ])
+        .toArray();
 
-        // int로 변환
+        // int로 변환   
         data.forEach(building => {
             building.평균거래가격 = parseInt(building.평균거래가격);
         });
@@ -154,6 +155,9 @@ const {
                 };
 
                 Plotly.newPlot('plotly-chart', traceData, layout);
+                document.getElementById('plotly-chart').style.display = 'flex';
+                document.getElementById('plotly-chart').style.justifyContent = 'center';
+                document.getElementById('plotly-chart').style.alignItems = 'center';
             });
         </script>
         `;
@@ -235,17 +239,18 @@ router.get('/2', async (req, res, next) => {
     if(year1&&year2){
         //6.용도별 연간 평균 거래량 
     const data1 = await collection.aggregate([
-        { $match: {
-            연도: { $gte: year1, $lte: year2 }
-        }},
-        { $group: {
-            _id: { 연도: "$연도", 건물용도: "$건물용도" },
-            거래량: { $sum: 1 }
-        }},
-        { 
-            $sort: { "_id.건물용도": 1, "_id.연도": 1 }
-        }
-      ]).toArray(); // 결과를 배열로 변환
+    { $match: {
+        연도: { $gte: year1, $lte: year2 }
+    }},
+    { $group: {
+        _id: { 연도: "$연도", 건물용도: "$건물용도" },
+        거래량: { $sum: 1 }
+    }},
+    { 
+        $sort: { "_id.건물용도": 1, "_id.연도": 1 }
+    }
+    ])
+        .toArray(); // 결과를 배열로 변환
             
     
         console.log("받아온 쿼리 파라미터: ",data1);
@@ -301,8 +306,12 @@ router.get('/2', async (req, res, next) => {
                     tickformat: ','  // 천 단위 구분자를 사용
                 }
             };
+            
     
             Plotly.newPlot('plotly-chart', traceData, layout);
+            document.getElementById('plotly-chart').style.display = 'flex';
+            document.getElementById('plotly-chart').style.justifyContent = 'center';
+            document.getElementById('plotly-chart').style.alignItems = 'center';
         });
         </script>
         `;
