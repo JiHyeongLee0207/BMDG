@@ -234,49 +234,59 @@ router.get('/1', async (req, res, next) => {
                 </tr>`;
         });
 
-        // 결과를 HTML 형식으로 포맷하여 생성
-        contents = `
-        <div>
-            <p>해당 지표는 부동산 가격의 변동을 제외하였습니다.</p>
-            <p>물가상승률은 공개된 통계 자료의 평균인 2.4%,</p>
-            <p>임금 상승률은 공개된 통계 자료의 평균인 3.7%를 적용했습니다.</p>
+        if(affordableContents === ''){
+            contents = `
             <div>
-                <h2>아래는 당신이 일하기 시작한 첫 연도의 순이익을 계산한 것입니다.</h2>
+                <p>그 정도 돈으로는 살 수 있는 집이 없네요...</p>
+                <p>조금 더 현실적으로 입력해볼까요?</p>
             </div>
-            <div id="plotly-chart1">
-            </div>
-        </div>
-        <div>
+            `;
+        }
+        else{
+            // 결과를 HTML 형식으로 포맷하여 생성
+            contents = `
             <div>
-                <h2>아래는 ${years}년간 당신이 돈을 저축하는 과정을 나타낸 것입니다.</h2>
+                <p>해당 지표는 부동산 가격의 변동을 제외하였습니다.</p>
+                <p>물가상승률은 공개된 통계 자료의 평균인 2.4%,</p>
+                <p>임금 상승률은 공개된 통계 자료의 평균인 3.7%를 적용했습니다.</p>
+                <div>
+                    <h2>아래는 당신이 일하기 시작한 첫 연도의 순이익을 계산한 것입니다.</h2>
+                </div>
+                <div id="plotly-chart1">
+                </div>
             </div>
-            <div id="plotly-chart2"></div>
-        </div>
-        <div>
-        ${affordableBuildings.length > 0 ? `
+            <div>
+                <div>
+                    <h2>아래는 ${years}년간 당신이 돈을 저축하는 과정을 나타낸 것입니다.</h2>
+                </div>
+                <div id="plotly-chart2"></div>
+            </div>
+            <div>
+            ${affordableBuildings.length > 0 ? `
 
-            <div id="plotly-chart2"></div>
-            <div>
-                <h1>${year}년 기준 ${gu}에서 ${areaRange} ${purpose}를 사려고 한다 
-                <br>매년 연봉 ${template.formatKoreanCurrency(income)}으로 한달에 ${template.formatKoreanCurrency(annualExpenses)}씩 쓸때</h1>
-                <h2>단 한번도 안짤리고 연속으로 ${years}년 만큼 일하면 살수있는 ${purpose}와 가격</h2>
-                <h2>내가번돈 ${totalSavings}</h2>
-                <table>    
-                    <thead>
-                        <tr>
-                            <th>건물명</th>
-                            <th>가격</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        ${affordableContents}
-                    </tbody>
-                </table>
+                <div id="plotly-chart2"></div>
+                <div>
+                    <h1>${year}년 기준 ${gu}에서 ${areaRange} ${purpose}를 사려고 한다 
+                    <br>매년 연봉 ${template.formatKoreanCurrency(income)}으로 한달에 ${template.formatKoreanCurrency(annualExpenses)}씩 쓸때</h1>
+                    <h2>단 한번도 안짤리고 연속으로 ${years}년 만큼 일하면 살수있는 ${purpose}와 가격</h2>
+                    <h2>내가번돈 ${totalSavings}</h2>
+                    <table>    
+                        <thead>
+                            <tr>
+                                <th>건물명</th>
+                                <th>가격</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${affordableContents}
+                        </tbody>
+                    </table>
+                </div>
+                <div id="plotly-chart"></div>
+            ` : `'<div><h1> ${year}년 기준 ${gu}에서 ${areaRange} ${purpose}를 사려고 할때, <br>매년 연봉 ${template.formatKoreanCurrency(income)}으로 한달에 ${template.formatKoreanCurrency(annualExpenses)}씩 쓸때</h1><h2>단 한번도 안짤리고 연속으로 ${years}년 만큼 일해도 살수있는 ${purpose}(이)가 없습니다.</h2></div>'`}
             </div>
-            <div id="plotly-chart"></div>
-        ` : `'<div><h1> ${year}년 기준 ${gu}에서 ${areaRange} ${purpose}를 사려고 할때, <br>매년 연봉 ${template.formatKoreanCurrency(income)}으로 한달에 ${template.formatKoreanCurrency(annualExpenses)}씩 쓸때</h1><h2>단 한번도 안짤리고 연속으로 ${years}년 만큼 일해도 살수있는 ${purpose}(이)가 없습니다.</h2></div>'`}
-        </div>
-        `;
+            `;
+        }
 
         js = `
         <script src="../js/5.js"></script>
