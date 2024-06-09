@@ -287,6 +287,7 @@ router.get('/3', async (req, res, next) => {
                 hovertemplate: '%{value} 건 (%{percent})',
                 textinfo: 'label+value+percent', // 레이블, 값, 퍼센트 표시
                 textposition: 'inside', // 레이블을 파이 차트 바깥에 위치
+                name: '',
             };
 
             const layout = {
@@ -399,10 +400,14 @@ router.get('/4', async (req, res, next) => {
     if (gu && purpose && year) {
         // 동별 평균 가격 및 거래량을 가져오는 쿼리
         const data1 = await collection.aggregate([
-            { $match: { 연도: year, 건물용도: purpose, 자치구명: gu } },
-            { $group: { _id: "$법정동명", 평균가격: { $avg: "$물건금액(만원)" }, 거래량: { $sum: 1 } } },
+            { $match: { 연도: year, 
+                건물용도: purpose, 자치구명: gu } },
+            { $group: { _id: "$법정동명", 평균가격:
+                { $avg: "$물건금액(만원)" },
+                거래량: { $sum: 1 } } },
             { $sort: { 평균가격: -1 } }
-        ]).toArray();
+        ])
+        .toArray();
     
         // 결과가 있는지 확인 후 출력
         contents = `
@@ -427,7 +432,7 @@ router.get('/4', async (req, res, next) => {
                     marker: {
                         size: ${JSON.stringify(data1.map(districtData => districtData.거래량))}, // 점 크기를 거래량에 반영
                         sizemode: 'area', // 점 크기 조절 모드 설정
-                        sizeref: 0.1, // 점 크기 배율 조절
+                        sizeref: 0.05, // 점 크기 배율 조절
                         sizemin: 5, // 점 최소 크기 설정
                         color: ${JSON.stringify(data1.map(districtData => districtData.거래량))}, // 거래량에 따라 색상 지정
                         colorscale: 'Viridis', // 색상 척도 설정
