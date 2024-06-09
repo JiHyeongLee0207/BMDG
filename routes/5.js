@@ -268,8 +268,8 @@ router.get('/1', async (req, res, next) => {
                 <div>
                     <h1>${year}년 기준 ${gu}에서 ${areaRange} ${purpose}를 사려고 한다 
                     <br>매년 연봉 ${template.formatKoreanCurrency(income)}으로 한달에 ${template.formatKoreanCurrency(annualExpenses)}씩 쓸때</h1>
-                    <h2>단 한번도 안짤리고 연속으로 ${years}년 만큼 일하면 살수있는 ${purpose}와 가격</h2>
-                    <h2>내가번돈 ${totalSavings}</h2>
+                    <h2>단 한번도 안짤리고 연속으로 ${years}년 만큼 일하면 살수있는 ${areaRange} ${purpose}와 가격</h2>
+                    <h2>당신이 번 돈 <span style="color:red;">${template.formatKoreanCurrency(Math.floor(totalSavings))}</span></h2>
                     <table>    
                         <thead>
                             <tr>
