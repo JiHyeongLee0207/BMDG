@@ -269,7 +269,7 @@ router.get('/3', async (req, res, next) => {
         <div>
             <h1>동별 거래량</h1>
             <br>
-            <p>${year}년도 서울시 ${gu}구의 동별 ${purpose} 거래량입니다.</p>
+            <p>${year}년도 서울시 ${gu}의 동별 ${purpose} 거래량입니다.</p>
         </div>
         
         <div id="plotly-chart"></div>
@@ -284,7 +284,7 @@ router.get('/3', async (req, res, next) => {
                 labels: ${JSON.stringify(data1.map(districtData => districtData._id))}, // 동명
                 values: ${JSON.stringify(data1.map(districtData => districtData.거래량))}, // 거래량
                 type: 'pie', // 차트 유형: 파이 차트
-                hovertemplate: '%{value} 건 (%{percent})',
+                hovertemplate: '%{label} <br>%{value} 건 (%{percent})',
                 textinfo: 'label+value+percent', // 레이블, 값, 퍼센트 표시
                 textposition: 'inside', // 레이블을 파이 차트 바깥에 위치
                 name: '',
@@ -302,8 +302,8 @@ router.get('/3', async (req, res, next) => {
                         }
                     },
 
-                height: 700, // 그래프의 높이 조정
-                width: 700, // 그래프의 너비 조정
+                height: 600, // 그래프의 높이 조정
+                width: 600, // 그래프의 너비 조정
             };
 
             Plotly.newPlot('plotly-chart', [data], layout);
@@ -414,7 +414,7 @@ router.get('/4', async (req, res, next) => {
         <div>
             <h1>동별 평균 가격 및 거래량</h1>
             <br>
-            <p>${year}년도 서울시 ${gu}구의 동별 ${purpose} 평균 가격 및 거래량입니다.</p>
+            <p>${year}년도 서울시 ${gu}의 동별 ${purpose} 평균 가격 및 거래량입니다.</p>
         </div>
         <div id="plotly-chart"></div>
         `;
