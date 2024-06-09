@@ -263,26 +263,29 @@ router.get('/1', async (req, res, next) => {
             </div>
             <div>
             ${affordableBuildings.length > 0 ? `
-
                 <div id="plotly-chart2"></div>
                 <div>
                     <h1>${year}년 기준 ${gu}에서 ${areaRange} ${purpose}를 사려고 한다 
                     <br>매년 연봉 ${template.formatKoreanCurrency(income)}으로 한달에 ${template.formatKoreanCurrency(annualExpenses)}씩 쓸때</h1>
                     <h2>단 한번도 안짤리고 연속으로 ${years}년 만큼 일하면 살수있는 ${areaRange} ${purpose}와 가격</h2>
-                    <h2>당신이 번 돈 <span style="color:red;">${template.formatKoreanCurrency(Math.floor(totalSavings))}</span></h2>
-                    <table>    
-                        <thead>
-                            <tr>
-                                <th>건물명</th>
-                                <th>가격</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            ${affordableContents}
-                        </tbody>
-                    </table>
+                    <div style="display:grid; grid-template-columns: 2fr 1fr; padding:0;">
+                        <div id="plotly-chart" style="padding:0;"></div>
+                        <div style="text-align: center;">
+                            <h2>당신이 번 돈 <span style="color:red;">${template.formatKoreanCurrency(Math.floor(totalSavings))}</span></h2>
+                            <table>    
+                                <thead>
+                                    <tr>
+                                        <th>건물명</th>
+                                        <th>가격</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${affordableContents}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
                 </div>
-                <div id="plotly-chart"></div>
             ` : `'<div><h1> ${year}년 기준 ${gu}에서 ${areaRange} ${purpose}를 사려고 할때, <br>매년 연봉 ${template.formatKoreanCurrency(income)}으로 한달에 ${template.formatKoreanCurrency(annualExpenses)}씩 쓸때</h1><h2>단 한번도 안짤리고 연속으로 ${years}년 만큼 일해도 살수있는 ${purpose}(이)가 없습니다.</h2></div>'`}
             </div>
             `;
