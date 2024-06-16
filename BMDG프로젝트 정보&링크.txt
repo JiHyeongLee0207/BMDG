@@ -1,0 +1,16 @@
+BMDG 프로젝트 정보
+
+발표 공개보기 링크: https://www.canva.com/design/DAGHhOJz5aI/YmPx-eloJd9FoduB8RsZTw/view?utm_content=DAGHhOJz5aI&utm_campaign=designshare&utm_medium=link&utm_source=editor
+
+시연영상 링크: https://youtu.be/z7FOYla0lMQ
+
+깃허브 링크: https://github.com/JiHyeongLee0207/BMDG.git
+
+DB 구글 드라이브 링크: https://drive.google.com/drive/folders/1X4oTUAcmGT-xh0mFXR2n-o4t-hU0d-Zs?usp=drive_link
+
+실행방법 : 구글 드라이브링크에서 BMDG.budongsan.json을 받아 몽고디비에 올리고 
+MongoDBCompass 에서 mongodb://localhost:27017 접속 후 
+터미널 환경에서 BMDG> 경로에서 pm2 start app.js --watch 명령어를 통해 서버를 켜고
+인터넷url 상에서 http://localhost:3000/을 통해 프로젝트를 시연해보실 수 있습니다.
+
+
